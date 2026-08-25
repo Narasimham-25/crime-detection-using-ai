@@ -1,0 +1,1506 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crime Command Center</title>
+    <!-- Leaflet Map CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root { --bg:#0b1220; --bg2:#1e1b4b; --panel:rgba(17,24,39,.74); --panel2:rgba(31,41,55,.74); --text:#e5e7eb; --muted:#94a3b8; --accent:#60a5fa; --danger:#ef4444; --warn:#f59e0b; --line:rgba(148,163,184,.35); --shadow:0 14px 35px rgba(2,6,23,.35); --glow1:#38bdf8; --glow2:#22c55e; }
+        body[data-theme="royal"] { --bg:#1f1147; --bg2:#3b0764; --panel:rgba(49,24,88,.72); --panel2:rgba(71,31,115,.72); --accent:#f472b6; --line:rgba(244,114,182,.35); --glow1:#a78bfa; --glow2:#f472b6; }
+        body[data-theme="sunset"] { --bg:#3f0d12; --bg2:#7f1d1d; --panel:rgba(69,20,22,.72); --panel2:rgba(96,30,32,.72); --accent:#fb923c; --line:rgba(251,146,60,.35); --glow1:#fb923c; --glow2:#f43f5e; }
+        body[data-theme="forest"] { --bg:#052e16; --bg2:#14532d; --panel:rgba(6,44,24,.72); --panel2:rgba(20,83,45,.72); --accent:#34d399; --line:rgba(52,211,153,.35); --glow1:#34d399; --glow2:#22d3ee; }
+        * { box-sizing:border-box; }
+        body { margin:0; font-family:Inter,Segoe UI,Arial,sans-serif; background:linear-gradient(145deg,var(--bg),var(--bg2)); color:var(--text); position:relative; min-height:100vh; }
+        body::before { content:""; position:fixed; inset:0; pointer-events:none; background:radial-gradient(35rem 35rem at 12% 16%, color-mix(in srgb, var(--glow1) 30%, transparent), transparent), radial-gradient(30rem 30rem at 84% 18%, color-mix(in srgb, var(--glow2) 28%, transparent), transparent), radial-gradient(25rem 25rem at 50% 85%, color-mix(in srgb, var(--glow1) 24%, transparent), transparent); z-index:-2; }
+        body::after { content:""; position:fixed; inset:0; pointer-events:none; background:linear-gradient(145deg,var(--bg),var(--bg2)); opacity:.86; z-index:-1; }
+        .container { max-width:1280px; margin:0 auto; padding:18px; }
+        .hero { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; background:linear-gradient(145deg,color-mix(in srgb, var(--panel2) 92%, transparent),color-mix(in srgb, var(--panel) 92%, transparent)); border:1px solid var(--line); border-radius:14px; padding:16px; box-shadow:var(--shadow); backdrop-filter:blur(8px); }
+        .hero h1 { margin:0; font-size:28px; } .muted { color:var(--muted); }
+        .topbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .btn, button { background:color-mix(in srgb, var(--panel2) 86%, transparent); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:8px 12px; cursor:pointer; transition:transform .15s ease,border-color .15s ease; }
+        .btn:hover, button:hover { transform:translateY(-1px); border-color:var(--accent); }
+        .btn-main { background:var(--accent); color:#052e16; border:none; font-weight:700; }
+        .grid { display:grid; gap:12px; margin-top:12px; }
+        .kpis { grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); }
+        .two { grid-template-columns:1.25fr 1fr; }
+        .three { grid-template-columns:repeat(3,1fr); }
+        .card { background:linear-gradient(145deg,color-mix(in srgb, var(--panel) 90%, transparent),color-mix(in srgb, var(--panel2) 90%, transparent)); border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:var(--shadow); backdrop-filter:blur(6px); }
+        .kpi h4 { margin:0; color:var(--muted); font-size:12px; text-transform:uppercase; }
+        .kpi p { margin:8px 0 0; font-size:26px; font-weight:700; }
+        .content-layout { display:grid; grid-template-columns:260px 1fr; gap:12px; margin-top:12px; align-items:start; }
+        .sidebar { position:sticky; top:12px; }
+        .section-content { min-width:0; }
+        .tabs { display:flex; flex-direction:column; gap:8px; margin:0; }
+        .tab { white-space:normal; text-align:left; width:100%; } .tab.active { background:color-mix(in srgb, var(--accent) 32%, transparent); border-color:var(--accent); }
+        .page { display:none; } .page.active { display:block; }
+        table { width:100%; border-collapse:collapse; }
+        th, td { border-bottom:1px solid var(--line); text-align:left; padding:8px; vertical-align:top; }
+        th { font-size:12px; color:#93c5fd; text-transform:uppercase; }
+        .controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+        input, select, textarea { width:100%; background:color-mix(in srgb, var(--panel2) 84%, transparent); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px; }
+        textarea { min-height:90px; }
+        .form-grid { display:grid; gap:10px; grid-template-columns:repeat(2,1fr); }
+        .full { grid-column:1 / -1; }
+        .tip { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px; margin-bottom:8px; }
+        .badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+        .badge-danger { background:rgba(239,68,68,.2); color:#fecaca; }
+        .badge-ok { background:rgba(34,197,94,.2); color:#bbf7d0; }
+        #heatmap { height:260px; background:#0f172a; border:1px dashed var(--line); border-radius:12px; position:relative; overflow:hidden; }
+        .dot { width:16px; height:16px; border-radius:50%; position:absolute; transform:translate(-50%,-50%); opacity:.75; }
+        .dot.High { background:#ef4444; } .dot.Medium { background:#f59e0b; } .dot.Low { background:#22c55e; }
+        .audio-btn { margin-left:8px; }
+        .cyber-grid { display:grid; gap:10px; grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:10px; }
+        .info-box { background:linear-gradient(135deg, rgba(30,41,59,.9), rgba(15,23,42,.85)); border:1px solid var(--line); border-radius:12px; padding:10px; }
+        .info-box h4 { margin:0 0 6px; color:#c4b5fd; }
+        .info-box ul { margin:0; padding-left:18px; }
+        .info-box li { margin-bottom:5px; color:#d1d5db; }
+        .status-chip { display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; border:1px solid var(--line); background:color-mix(in srgb, var(--panel2) 88%, transparent); }
+        .status-live { color:#bbf7d0; border-color:#14532d; background:rgba(34,197,94,.15); }
+        .status-watch { color:#fde68a; border-color:#78350f; background:rgba(245,158,11,.15); }
+        .quick-links a { margin-right:8px; }
+        @media (max-width:980px) {
+            .content-layout { grid-template-columns:1fr; }
+            .sidebar { position:static; }
+            .tabs { flex-direction:row; overflow:auto; padding-bottom:4px; }
+            .tab { white-space:nowrap; width:auto; }
+            .two,.three,.form-grid,.cyber-grid { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="landingPage" class="landing-container" style="display:flex;">
+        <nav class="landing-nav">
+            <div class="landing-logo">
+                <img src="logo.png" alt="AI Crime Detection Logo">
+                <span>AI Crime Shield</span>
+            </div>
+            <div class="landing-auth">
+                <button class="btn-outline" id="btnLandingLogin">Login</button>
+                <button class="btn-primary" id="btnLandingRegister">Create Account</button>
+            </div>
+        </nav>
+        <div class="landing-hero">
+            <div class="hero-badge">AI-Powered Security System</div>
+            <h1><span>Crime Detection</span> using AI</h1>
+            <p>Advanced predictive algorithms and real-time community reporting combined into a single, unified dashboard to keep your neighborhoods safe.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary btn-large" id="btnHeroRegister">Get Started Free</button>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="display:none;">
+        <section class="hero">
+            <div>
+                <h1 id="titleText">AI Crime Detection System</h1>
+                <p class="muted" id="subtitleText">Generated: 2026-08-21T05:48:53 • Live AI public safety monitoring</p>
+            </div>
+            <div class="topbar">
+                <a class="btn btn-main" href="https://www.google.com/maps/search/?api=1&query=Mumbai%2C+Maharashtra%2C+India" target="_blank">Open Hotspot Map</a>
+                <a class="btn" href="hotspot_report.json" download>Download Data</a>
+                <button id="notifyBtn">Enable Alerts</button>
+                <button id="sosBtn" style="background:#dc2626; color:white; font-weight:bold; border:none; padding:8px 16px; border-radius:6px; cursor:pointer;" title="Trigger Emergency SOS">🚨 SOS Emergency</button>
+                <select id="themeSelect" style="width:auto"><option value="midnight">Midnight</option><option value="royal">Royal</option><option value="sunset">Sunset</option><option value="forest">Forest</option></select>
+                <select id="langSelect" style="width:auto"><option value="en">English</option><option value="hi">हिन्दी</option><option value="te">తెలుగు</option></select>
+                <span id="authControls" style="margin-left:8px;">
+                    <button id="btnOpenLogin" class="btn">Login</button>
+                    <button id="btnOpenRegister" class="btn">Register</button>
+                </span>
+                <span id="userControls" style="display:none; margin-left:8px; align-items:center;">
+                    <span class="muted" style="margin-right:8px; font-size:14px;">Hi, <span id="lblUserName" style="color:var(--text);font-weight:600;">User</span></span>
+                    <button id="btnLogout" class="btn">Logout</button>
+                </span>
+            </div>
+        </section>
+
+        <!-- Auth Modal -->
+        <div id="authModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+            <div class="card" style="width:360px; max-width:90%; position:relative;">
+                <button type="button" id="btnCloseModal" style="position:absolute; top:8px; right:8px; background:transparent; border:none; font-size:18px; color:var(--text);">&times;</button>
+                <h3 id="modalTitle" style="margin-top:0;">Login</h3>
+                <form id="authForm" class="form-grid">
+                    <div id="grpName" class="full" style="display:none;"><label>Name</label><input id="authName" /></div>
+                    <div id="grpRole" class="full" style="display:none; margin-top:8px;"><label>Role</label><select id="authRole"><option value="citizen">Citizen</option><option value="officer">Law Enforcement Officer</option><option value="analyst">Crime Data Analyst</option></select></div>
+                    <div class="full"><label>Email</label><input type="email" id="authEmail" required /></div>
+                    <div class="full"><label>Password</label><input type="password" id="authPassword" required /></div>
+                    <div class="full controls" style="margin-top:8px;">
+                        <button type="submit" id="btnSubmitAuth" class="btn-main" style="width:100%;">Login</button>
+                    </div>
+                    <p id="authError" class="status-text error full" style="margin:0; text-align:center;"></p>
+                    <div class="auth-divider">or continue with</div>
+                    <div class="full" style="display:flex; justify-content:center;">
+                        <button type="button" class="btn-google" id="btnGoogleLogin">
+                           <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+                           Google
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Landing Page moved to body -->
+
+        <section class="grid kpis">
+            <div class="card kpi"><h4>Total Articles</h4><p>16</p></div>
+            <div class="card kpi"><h4>Hotspots</h4><p>7</p></div>
+            <div class="card kpi"><h4>Incidents</h4><p>7</p></div>
+            <div class="card kpi"><h4>Alert Status</h4><p><span class="badge badge-danger">Active</span></p></div>
+        </section>
+
+        <div class="content-layout">
+        <aside class="sidebar">
+            <nav class="tabs" id="tabs">
+                <button class="tab active" data-tab="mapping">Crime Hotspot Mapping</button>
+                <button class="tab" data-tab="reporting">Incident Reporting</button>
+                <button class="tab" data-tab="alerts">Real-Time Alerts</button>
+                <button class="tab" data-tab="stats">Statistics Dashboard</button>
+                <button class="tab" data-tab="law">Law Enforcement Portal</button>
+                <button class="tab" data-tab="community">Community Engagement</button>
+                <button class="tab" data-tab="security">Security & Privacy</button>
+                <button class="tab" data-tab="advanced">Advanced Features</button>
+                <button class="tab" data-tab="accessibility">Accessibility</button>
+            </nav>
+        </aside>
+
+        <main class="section-content">
+        <section id="mapping" class="page active">
+            <div class="grid two">
+                <div class="card">
+                    <h3>Interactive Hotspot Table</h3>
+                    <table>
+                        <thead><tr><th>#</th><th>District</th><th>State</th><th>Mentions</th><th>Crime Types</th><th>Map</th></tr></thead>
+                        <tbody><tr><td>1</td><td>Mumbai</td><td>Maharashtra</td><td>16</td><td>cybercrime, rape, theft</td><td><a href="https://www.google.com/maps/search/?api=1&query=Mumbai%2C+Maharashtra%2C+India" target="_blank">Open Map</a></td></tr>
+<tr><td>2</td><td>New Delhi</td><td>Delhi</td><td>12</td><td>assault, robbery</td><td><a href="https://www.google.com/maps/search/?api=1&query=New+Delhi%2C+Delhi%2C+India" target="_blank">Open Map</a></td></tr>
+<tr><td>3</td><td>Bengaluru</td><td>Karnataka</td><td>10</td><td>cybercrime, fraud</td><td><a href="https://www.google.com/maps/search/?api=1&query=Bengaluru%2C+Karnataka%2C+India" target="_blank">Open Map</a></td></tr>
+<tr><td>4</td><td>Chennai</td><td>Tamil Nadu</td><td>8</td><td>assault, theft</td><td><a href="https://www.google.com/maps/search/?api=1&query=Chennai%2C+Tamil+Nadu%2C+India" target="_blank">Open Map</a></td></tr>
+<tr><td>5</td><td>Lucknow</td><td>Uttar Pradesh</td><td>2</td><td>murder, shooting</td><td><a href="https://www.google.com/maps/search/?api=1&query=Lucknow%2C+Uttar+Pradesh%2C+India" target="_blank">Open Map</a></td></tr>
+<tr><td>6</td><td>Arwal</td><td>Bihar</td><td>2</td><td>assault</td><td><a href="https://www.google.com/maps/search/?api=1&query=Arwal%2C+Bihar%2C+India" target="_blank">Open Map</a></td></tr>
+<tr><td>7</td><td>Visakhapatnam</td><td>Andhra Pradesh</td><td>1</td><td>assault</td><td><a href="https://www.google.com/maps/search/?api=1&query=Visakhapatnam%2C+Andhra+Pradesh%2C+India" target="_blank">Open Map</a></td></tr></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h3>Interactive Hotspot Map</h3>
+                    <div class="controls">
+                        <select id="fType"><option value="All">All Crime Types</option></select>
+                        <select id="fSeverity"><option value="All">All Severity</option><option>High</option><option>Medium</option><option>Low</option></select>
+                        <button id="applyHeat">Apply Filter</button>
+                    </div>
+                    <div id="mainMap" style="height: 300px; border-radius: 12px; border: 1px solid var(--line); margin-bottom: 8px; position: relative; z-index: 1;"></div>
+                    <p class="muted">Click on map markers to view hotspot details and dispatch options.</p>
+                    <h4>Live Backend + Quick Search</h4>
+                    <p id="apiStatusLine" class="status-chip status-watch">API: checking connection...</p>
+                    <div class="controls">
+                        <input id="quickSearchInput" placeholder="Search complaints/cases/watch/cyber/cctv" />
+                        <button id="quickSearchBtn" type="button">Search</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>Source</th><th>Title</th><th>District/Area</th><th>Status</th><th>Time</th></tr></thead>
+                        <tbody id="quickSearchBody"><tr><td colspan="5" class="muted">Run a search to see matching records.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="reporting" class="page">
+            <div class="grid two">
+                <div class="card" id="cardReportComplaint">
+                    <h3>Secure Online Complaint Form</h3>
+                    <form id="complaintForm" class="form-grid">
+                        <div><label>Name</label><input id="cName" /></div>
+                        <div><label>Phone</label><input id="cPhone" /></div>
+                        <div><label>Crime Category</label><select id="cCategory"><option>Theft</option><option>Cybercrime</option><option>Assault</option><option>Fraud</option><option>Other</option></select></div>
+                        <div><label>District/Area</label><input id="cDistrict" readonly placeholder="Auto-detecting..." /></div>
+                        <div class="full">
+                            <div class="form-grid">
+                                <div><label>Latitude</label><input id="cLat" readonly placeholder="Auto-detecting..." /></div>
+                                <div><label>Longitude</label><input id="cLon" readonly placeholder="Auto-detecting..." /></div>
+                            </div>
+                        </div>
+                        <div class="full"><label>Description</label><textarea id="cDesc"></textarea></div>
+                        <div><label>Evidence (photo/video)</label><input id="cEvidence" type="file" name="images_videos" multiple accept="image/*,video/*" /></div>
+                        <div><label><input type="checkbox" id="cAnon" /> Anonymous Reporting</label></div>
+                        <div class="full controls"><button type="submit" class="btn-main">Submit Complaint</button></div>
+                    </form>
+                    <p class="muted">This local demo stores submissions in browser local storage.</p>
+                </div>
+                <div class="card" id="cardControlRoom">
+                    <h3>Control Room</h3>
+                    <p>Number: <a href="tel:112">112</a></p>
+                    <p>Email: <a href="mailto:controlroom@citypolice.gov">controlroom@citypolice.gov</a></p>
+                    <h4>Recent Complaints</h4>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead style="position: sticky; top: 0; background: #111827; z-index: 1;">
+                                <tr><th>ID</th><th>Category</th><th>District</th><th>AI Match</th><th>Reported by</th><th>Time</th></tr>
+                            </thead>
+                            <tbody id="complaintsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="alerts" class="page">
+            <div class="grid two">
+                <div class="card">
+                    <h3>Nearby Incident Alerts</h3>
+                    <ul><li>High crime alert: Mumbai, Maharashtra has 16 mentions.</li></ul>
+                    <p id="userLocation">Detecting your location...</p>
+                    <p id="distanceToHotspot">Distance to top hotspot: calculating...</p>
+                    <p id="nearestStationText">Nearest station to your live location: calculating...</p>
+                </div>
+                <div class="card" id="cardSosBoard" style="border: 2px solid #ef4444; background: rgba(239,68,68,0.05);">
+                    <h3 style="color: #ef4444;">🚨 Active SOS Emergency Alerts</h3>
+                    <table style="margin-top: 10px;">
+                        <thead><tr><th>ID</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
+                        <tbody id="sosBody"><tr><td colspan="4" class="muted">Fetching SOS alerts...</td></tr></tbody>
+                    </table>
+                    <div style="margin-top:10px; text-align:right;">
+                        <button id="refreshSosBtn" class="btn" style="background:#ef4444; color:white; border:none;">Refresh Alerts</button>
+                    </div>
+                </div>
+            </div>
+            <div class="grid two" style="margin-top:20px;">
+                <div class="card">
+                    <h3>Urgent SMS / Email Integration</h3>
+                    <p>SMS Shortcut: <a href="sms:112">Send SMS to Control Room</a></p>
+                    <p>Email Shortcut: <a href="mailto:controlroom@citypolice.gov?subject=Urgent%20Crime%20Alert">Send Email Alert</a></p>
+                    <p class="muted">For production, integrate official SMS/email gateways via backend APIs.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="stats" class="page">
+            <div class="controls" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                <select id="statStateFilter" style="width: auto;"><option value="All">All States</option><option>Maharashtra</option><option>Delhi</option><option>Karnataka</option><option>Tamil Nadu</option><option>Uttar Pradesh</option><option>Bihar</option><option>Andhra Pradesh</option></select>
+                <select id="statDistrictFilter" style="width: auto;"><option value="All">All Districts</option><option>Mumbai</option><option>New Delhi</option><option>Bengaluru</option><option>Chennai</option><option>Lucknow</option><option>Arwal</option><option>Visakhapatnam</option></select>
+                <select id="statTypeFilter" style="width: auto;"><option value="All">All Types</option><option>cybercrime</option><option>assault</option><option>murder</option><option>theft</option><option>fraud</option></select>
+                <select id="statTimeFilter" style="width: auto;"><option value="All">All Time periods</option><option value="24h">Past 24 Hours</option><option value="7d">Past 7 Days</option><option value="30d">Past 30 Days</option></select>
+                <button id="btnGenerateReport" class="btn-main" style="margin-left: auto;">Generate Crime Report</button>
+            </div>
+            <div class="grid two">
+                <div class="card">
+                    <h3>Crime Trend by Category</h3>
+                    <canvas id="catChart" width="560" height="260" style="max-width:100%;background:#0f172a;border:1px solid var(--line);border-radius:10px"></canvas>
+                </div>
+                <div class="card" id="cardIncidentsTable">
+                    <h3>Incidents Table</h3>
+                    <div style="max-height: 260px; overflow-y: auto;">
+                        <table>
+                            <thead><tr><th>ID</th><th>District</th><th>Type</th><th>Severity</th><th>Time</th></tr></thead>
+                            <tbody id="incidentsBody"><tr data-type="cybercrime" data-severity="High"><td>INC-1-MUMBAI</td><td>Mumbai</td><td>cybercrime</td><td>High</td><td>2026-08-21T03:48</td></tr>
+    <tr data-type="assault" data-severity="High"><td>INC-2-NEWDELHI</td><td>New Delhi</td><td>assault</td><td>High</td><td>2026-08-21T01:48</td></tr>
+    <tr data-type="cybercrime" data-severity="High"><td>INC-3-BENGALURU</td><td>Bengaluru</td><td>cybercrime</td><td>High</td><td>2026-08-20T23:48</td></tr>
+    <tr data-type="assault" data-severity="High"><td>INC-4-CHENNAI</td><td>Chennai</td><td>assault</td><td>High</td><td>2026-08-20T21:48</td></tr>
+    <tr data-type="murder" data-severity="Medium"><td>INC-5-LUCKNOW</td><td>Lucknow</td><td>murder</td><td>Medium</td><td>2026-08-20T19:48</td></tr>
+    <tr data-type="assault" data-severity="Medium"><td>INC-6-ARWAL</td><td>Arwal</td><td>assault</td><td>Medium</td><td>2026-08-20T17:48</td></tr>
+    <tr data-type="assault" data-severity="Low"><td>INC-7-VISAKHAPATNAM</td><td>Visakhapatnam</td><td>assault</td><td>Low</td><td>2026-08-20T15:48</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="grid two" style="margin-top: 15px;">
+                <div class="card full" style="grid-column: 1 / -1;">
+                    <h3>Collected Crime Datasets & RSS News Reports</h3>
+                    <div style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; border: 1px solid var(--line);">
+                        <ul id="newsReportList" style="margin:0; padding-left: 15px; line-height: 1.6;">
+                            <li><b>[News]</b> Cyber arrest made in Mumbai regarding \$50k banking API credential exploit - <i>Times of Crime</i></li>
+                            <li><b>[Dataset]</b> Released annual state-wise classification report of public incidents for Q2 2026 - <i>National Database</i></li>
+                            <li><b>[Alert]</b> Nagaland district police releases cyber defense coordinates check guidelines - <i>State Cyber</i></li>
+                            <li><b>[News]</b> Attempted robbery halted by community watch group in Chennai - <i>Local News Feed</i></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="law" class="page">
+            <div class="grid two">
+                <div class="card">
+                    <h3>Police Portal (Restricted Access)</h3>
+                    <div class="controls"><input id="portalPin" type="password" placeholder="Enter police PIN" /><button id="portalLogin">Login</button></div>
+                    <p class="muted">Demo PIN for local test: 4321</p>
+                    <div id="portalArea" style="display:none">
+                        <h4>Case Management</h4>
+                        <form id="caseForm" class="form-grid">
+                            <div><label>Case ID</label><input id="caseId" /></div>
+                            <div><label>Officer</label><input id="caseOfficer" /></div>
+                             <div><label>Status</label><select id="caseStatus"><option>Reported</option><option>Under Investigation</option><option>Verified</option><option>In Progress</option><option>Resolved</option><option>Rejected</option></select></div>
+                            <div><label>Priority</label><select id="casePriority"><option>High</option><option>Medium</option><option>Low</option></select></div>
+                            <div class="full"><label>Notes</label><textarea id="caseNotes"></textarea></div>
+                            <div class="full"><button class="btn-main" type="submit">Save Case</button></div>
+                        </form>
+                        <table><thead><tr><th>Case</th><th>Officer</th><th>Status</th><th>Priority</th><th>Updated</th></tr></thead><tbody id="casesBody"></tbody></table>
+                        <h4 style="margin-top:20px;">🚨 Reported Incidents (Citizen Complaints)</h4>
+                        <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px;">
+                            <table style="width:100%; font-size:12px;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Category</th>
+                                        <th>District</th>
+                                        <th>Coordinates</th>
+                                        <th>AI Severity</th>
+                                        <th>Reported By</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="officerComplaintsBody">
+                                    <tr><td colspan="7" class="muted">No complaints loaded.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Police Database Integration (Adapter)</h3>
+                    <p class="muted">Paste JSON from existing police systems to view in dashboard format.</p>
+                    <textarea id="dbImport" placeholder='{"cases": [{"id": "A1", "status": "Open"}]}'></textarea>
+                    <div class="controls"><button id="importDb">Import Dataset</button></div>
+                    <pre id="dbPreview" class="muted"></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="community" class="page">
+            <div class="grid two">
+                <div class="card">
+                    <h3>Safety Tips & Awareness</h3>
+                    <article class="tip"><h4>Cyber Safety</h4><p>Never share OTPs, verify payment links, and enable 2FA on banking apps.</p></article>
+<article class="tip"><h4>Home Security</h4><p>Install door cameras, use motion lights, and keep emergency contacts visible.</p></article>
+<article class="tip"><h4>Fraud Awareness</h4><p>Do not trust urgent reward/loan calls; verify via official helplines first.</p></article>
+<article class="tip"><h4>Women & Child Safety</h4><p>Share live location with trusted contacts when travelling late hours.</p></article>
+                </div>
+                <div class="card">
+                    <h3>Neighborhood Watch</h3>
+                    <form id="watchForm" class="form-grid">
+                        <div><label>Group Name</label><input id="watchName" /></div>
+                        <div><label>Area</label><input id="watchArea" /></div>
+                        <div class="full"><label>Plan</label><textarea id="watchPlan"></textarea></div>
+                        <div class="full"><button class="btn-main" type="submit">Create Watch Group</button></div>
+                    </form>
+                    <ul id="watchList"></ul>
+                    <h4>Feedback & Suggestions</h4>
+                    <textarea id="feedbackText" placeholder="Share safety improvements..."></textarea>
+                    <div class="controls"><button id="saveFeedback">Submit Feedback</button></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="security" class="page">
+            <div class="grid two">
+                <div class="card">
+                    <h3>Security & Privacy Controls</h3>
+                    <ul>
+                        <li>Role-based access for citizens, police, and admins.</li>
+                        <li>Data encryption required for production report/evidence storage.</li>
+                        <li>Audit logs enabled for complaints, case updates, and portal login.</li>
+                    </ul>
+                    <p class="muted">Current demo uses browser-local encrypted-like encoding for portability; production should use backend encryption at rest + in transit.</p>
+                </div>
+                <div class="card">
+                    <h3>Audit Logs</h3>
+                    <table><thead><tr><th>Action</th><th>Actor</th><th>Time</th></tr></thead><tbody id="auditBody"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <section id="advanced" class="page">
+            <div class="grid two">
+                <div class="card">
+                    <h3>AI-Powered Analytics (Forecast)</h3>
+                    <p id="forecastText"></p>
+                    <div id="cardReportCyber">
+                        <h4>Cybercrime Section</h4>
+                        <form id="cyberForm" class="form-grid">
+                            <div><label>Issue Type</label><select id="cyberType"><option>Phishing</option><option>Hacking</option><option>Online Fraud</option><option>Identity Theft</option></select></div>
+                            <div><label>Contact</label><input id="cyberContact" /></div>
+                            <div class="full"><label>Details</label><textarea id="cyberDetails"></textarea></div>
+                            <div class="full"><button class="btn-main" type="submit">Report Cybercrime</button></div>
+                        </form>
+                    </div>
+                    <div id="cardViewCyber" style="display:none; margin-top:20px;">
+                        <h4 style="color:#ef4444;">🚨 Recent Cybercrime Reports (Analyst Dashboard)</h4>
+                        <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px;">
+                            <table style="font-size:12px; width: 100%; border-collapse: collapse;">
+                                <thead style="position: sticky; top: 0; background: #111827; z-index: 1;">
+                                    <tr><th>Title</th><th>Contact</th><th>AI Category</th><th>AI Confidence</th><th>AI Severity</th><th>Priority</th><th>Evidence</th><th>Details</th><th>Time</th></tr>
+                                </thead>
+                                <tbody id="cyberBody"><tr><td colspan="9" class="muted">Loading...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>CCTV Integration Console</h3>
+                    <div class="controls"><input id="cctvUrl" placeholder="Paste CCTV feed URL" /><button id="addCctv">Add Feed</button></div>
+                    <ul id="cctvList"></ul>
+                    <h4>Emergency Contact Directory</h4>
+                    <table><thead><tr><th>Service</th><th>Phone</th><th>Email</th></tr></thead><tbody><tr><td>Police Control Room</td><td><a href="tel:112">112</a></td><td>controlroom@citypolice.gov</td></tr>
+<tr><td>Ambulance</td><td><a href="tel:108">108</a></td><td></td></tr>
+<tr><td>Fire</td><td><a href="tel:101">101</a></td><td></td></tr>
+<tr><td>Women Helpline</td><td><a href="tel:1091">1091</a></td><td></td></tr>
+<tr><td>Cybercrime Helpline</td><td><a href="tel:1930">1930</a></td><td></td></tr></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <section id="accessibility" class="page">
+            <div class="grid two">
+                <div class="card">
+                    <h3>Mobile-Friendly & Multilingual</h3>
+                    <p>This portal is responsive and supports English, Hindi, and Telugu labels for key sections.</p>
+                    <p class="muted">Use language dropdown in the top bar.</p>
+                </div>
+                <div class="card">
+                    <h3>Voice Assistance</h3>
+                    <p>Read summary aloud for visually impaired users.</p>
+                    <button id="speakBtn" class="audio-btn">Speak Dashboard Summary</button>
+                </div>
+            </div>
+        </section>
+        </main>
+        </div>
+    </div>
+
+    <script>
+        localStorage.removeItem('crimeApiBase');
+        const report = {"generated_at": "2026-08-21T05:48:53", "total_crime_articles": 16, "state_filter": "", "keywords": ["assault", "attack", "burglary", "crime", "homicide", "kidnap", "murder", "rape", "robbery", "shooting", "theft"], "top_hotspots": [{"rank": 1, "state": "Maharashtra", "district": "Mumbai", "mentions": 16, "crime_types": ["cybercrime", "rape", "theft"], "latitude": 19.076, "longitude": 72.8777, "maps_url": "https://www.google.com/maps/search/?api=1&query=Mumbai%2C+Maharashtra%2C+India"}, {"rank": 2, "state": "Delhi", "district": "New Delhi", "mentions": 12, "crime_types": ["assault", "robbery"], "latitude": 28.6139, "longitude": 77.209, "maps_url": "https://www.google.com/maps/search/?api=1&query=New+Delhi%2C+Delhi%2C+India"}, {"rank": 3, "state": "Karnataka", "district": "Bengaluru", "mentions": 10, "crime_types": ["cybercrime", "fraud"], "latitude": 12.9716, "longitude": 77.5946, "maps_url": "https://www.google.com/maps/search/?api=1&query=Bengaluru%2C+Karnataka%2C+India"}, {"rank": 4, "state": "Tamil Nadu", "district": "Chennai", "mentions": 8, "crime_types": ["assault", "theft"], "latitude": 13.0827, "longitude": 80.2707, "maps_url": "https://www.google.com/maps/search/?api=1&query=Chennai%2C+Tamil+Nadu%2C+India"}, {"rank": 5, "state": "Uttar Pradesh", "district": "Lucknow", "mentions": 2, "crime_types": ["murder", "shooting"], "latitude": 26.8381, "longitude": 80.9346001, "maps_url": "https://www.google.com/maps/search/?api=1&query=Lucknow%2C+Uttar+Pradesh%2C+India"}, {"rank": 6, "state": "Bihar", "district": "Arwal", "mentions": 2, "crime_types": ["assault"], "latitude": 25.1812832, "longitude": 84.6596648, "maps_url": "https://www.google.com/maps/search/?api=1&query=Arwal%2C+Bihar%2C+India"}, {"rank": 7, "state": "Andhra Pradesh", "district": "Visakhapatnam", "mentions": 1, "crime_types": ["assault"], "latitude": 17.6935526, "longitude": 83.2921297, "maps_url": "https://www.google.com/maps/search/?api=1&query=Visakhapatnam%2C+Andhra+Pradesh%2C+India"}], "top_hotspot_police_info": "Police Station: Khar Police Station | Address: Mumbai | Phone: N/A | Coordinates: 19.064037, 72.8371137", "top_hotspot_center": {"district": "Mumbai", "state": "Maharashtra", "latitude": 19.076, "longitude": 72.8777, "maps_url": "https://www.google.com/maps/search/?api=1&query=19.076,72.8777"}, "nearby_police_stations": [{"name": "Khar Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 19.064037, "longitude": 72.8371137, "maps_url": "https://www.google.com/maps/search/?api=1&query=19.064037,72.8371137"}, {"name": "Lokmanya Tilak Road Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9453708, "longitude": 72.8303315, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9453708,72.8303315"}, {"name": "Null Bazaar Police Chowkie", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9570075, "longitude": 72.8290329, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9570075,72.8290329"}, {"name": "Pydhoni Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9541719, "longitude": 72.832021, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9541719,72.832021"}, {"name": "Dongri Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9621396, "longitude": 72.8390488, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9621396,72.8390488"}], "alerts": ["High crime alert: Mumbai, Maharashtra has 16 mentions."], "category_breakdown": {"assault": 6, "rape": 4, "attack": 2, "murder": 2, "shooting": 1, "crime": 1}, "incidents": [{"id": "INC-1-MUMBAI", "district": "Mumbai", "state": "Maharashtra", "crime_type": "cybercrime", "severity": "High", "time": "2026-08-21T03:48", "latitude": 19.076, "longitude": 72.8777}, {"id": "INC-2-NEWDELHI", "district": "New Delhi", "state": "Delhi", "crime_type": "assault", "severity": "High", "time": "2026-08-21T01:48", "latitude": 28.6139, "longitude": 77.209}, {"id": "INC-3-BENGALURU", "district": "Bengaluru", "state": "Karnataka", "crime_type": "cybercrime", "severity": "High", "time": "2026-08-20T23:48", "latitude": 12.9716, "longitude": 77.5946}, {"id": "INC-4-CHENNAI", "district": "Chennai", "state": "Tamil Nadu", "crime_type": "assault", "severity": "High", "time": "2026-08-20T21:48", "latitude": 13.0827, "longitude": 80.2707}, {"id": "INC-5-LUCKNOW", "district": "Lucknow", "state": "Uttar Pradesh", "crime_type": "murder", "severity": "Medium", "time": "2026-08-20T19:48", "latitude": 26.8381, "longitude": 80.9346001}, {"id": "INC-6-ARWAL", "district": "Arwal", "state": "Bihar", "crime_type": "assault", "severity": "Medium", "time": "2026-08-20T17:48", "latitude": 25.1812832, "longitude": 84.6596648}, {"id": "INC-7-VISAKHAPATNAM", "district": "Visakhapatnam", "state": "Andhra Pradesh", "crime_type": "assault", "severity": "Low", "time": "2026-08-20T15:48", "latitude": 17.6935526, "longitude": 83.2921297}], "safety_tips": [{"title": "Cyber Safety", "content": "Never share OTPs, verify payment links, and enable 2FA on banking apps."}, {"title": "Home Security", "content": "Install door cameras, use motion lights, and keep emergency contacts visible."}, {"title": "Fraud Awareness", "content": "Do not trust urgent reward/loan calls; verify via official helplines first."}, {"title": "Women & Child Safety", "content": "Share live location with trusted contacts when travelling late hours."}], "emergency_contacts": [{"service": "Police Control Room", "phone": "112", "email": "controlroom@citypolice.gov"}, {"service": "Ambulance", "phone": "108", "email": ""}, {"service": "Fire", "phone": "101", "email": ""}, {"service": "Women Helpline", "phone": "1091", "email": ""}, {"service": "Cybercrime Helpline", "phone": "1930", "email": ""}], "portal": {"demo_pin": "4321", "control_room_number": "112", "control_room_email": "controlroom@citypolice.gov"}, "cyber_resources": {"citizen_steps": ["Immediately call 1930 for financial fraud freeze request.", "Report at cybercrime.gov.in with transaction IDs and screenshots.", "Do not delete chats, emails, or SMS evidence.", "Change passwords and enable 2-factor authentication on all accounts.", "Inform your bank and block compromised cards/wallets right away."], "police_playbook": ["Preserve chain of custody for digital evidence and device seizure logs.", "Correlate complaints with UPI IDs, mule accounts, and IP intelligence.", "Trigger rapid takedown workflow for phishing domains and fake apps.", "Issue legal preservation notices to platforms and ISPs.", "Escalate cross-state/cross-border cases to cyber coordination units."], "fraud_signals": ["Remote screen-share app installation requests.", "Urgent KYC update links from unknown senders.", "Payment request from fake customer-care/social media handles.", "Unexpected OTP/approval popups while on calls.", "Promises of instant loan/refund requiring advance fees."], "evidence_checklist": ["Transaction reference number / UTR", "Phone numbers, email IDs, social handles", "Wallet ID / UPI ID / account details", "Screenshots, call recordings, chat exports", "Device logs and approximate incident timeline"]}};
+        const categoryLabels = ["assault", "rape", "attack", "murder", "shooting", "crime"];
+        const categoryValues = [6, 4, 2, 2, 1, 1];
+
+        function safeFormatTime(dateVal) {
+            if (!dateVal) return new Date().toLocaleTimeString();
+            try {
+                const d = new Date(dateVal);
+                if (!isNaN(d.getTime())) return d.toLocaleTimeString();
+            } catch {}
+            return new Date().toLocaleTimeString();
+        }
+
+        function safeFormatDateTime(dateVal) {
+            if (!dateVal) return new Date().toLocaleString();
+            try {
+                const d = new Date(dateVal);
+                if (!isNaN(d.getTime())) return d.toLocaleString();
+            } catch {}
+            return new Date().toLocaleString();
+        }
+
+        const tabs = document.querySelectorAll('.tab');
+        const pages = document.querySelectorAll('.page');
+        tabs.forEach(t => t.addEventListener('click', () => {
+            tabs.forEach(x => x.classList.remove('active')); t.classList.add('active');
+            pages.forEach(p => p.classList.remove('active'));
+            document.getElementById(t.dataset.tab).classList.add('active');
+            logAudit(`Open tab: ${t.dataset.tab}`, localStorage.getItem('crimeUser') || 'Citizen');
+            if (t.dataset.tab === 'mapping' && typeof initMainMap === 'function') {
+                setTimeout(initMainMap, 200);
+            } else if (t.dataset.tab === 'reporting' && typeof autoDetectFormLocation === 'function') {
+                setTimeout(autoDetectFormLocation, 200);
+            } else if (t.dataset.tab === 'stats' && typeof drawChart === 'function') {
+                setTimeout(drawChart, 200);
+            }
+        }));
+
+        function logAudit(action, actor) {
+            const username = localStorage.getItem('crimeUser') || 'Citizen';
+            const key = `crimeAuditLogs_${username}`;
+            const logs = JSON.parse(localStorage.getItem(key) || '[]');
+            logs.unshift({ action, actor, time: new Date().toLocaleString() });
+            localStorage.setItem(key, JSON.stringify(logs.slice(0, 80)));
+            renderAudit();
+        }
+        function renderAudit() {
+            const username = localStorage.getItem('crimeUser') || 'Citizen';
+            const logs = JSON.parse(localStorage.getItem(`crimeAuditLogs_${username}`) || '[]');
+            document.getElementById('auditBody').innerHTML = logs.map(l => `<tr><td>${l.action}</td><td>${l.actor}</td><td>${l.time}</td></tr>`).join('');
+        }
+
+        let alertsActive = localStorage.getItem('alertsActive') === 'true';
+        const notifyBtnObj = document.getElementById('notifyBtn');
+        if (notifyBtnObj && alertsActive) {
+            notifyBtnObj.textContent = 'Disable Alerts';
+        }
+
+        function notifyUser(message) {
+            if (!alertsActive) return;
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'granted') new Notification('Crime Alert', { body: message });
+            else if (Notification.permission !== 'denied') Notification.requestPermission();
+        }
+        notifyBtnObj.addEventListener('click', async () => { 
+            if (!alertsActive) {
+                if (!('Notification' in window)) {
+                    alert('This browser does not support desktop notification');
+                    return;
+                }
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    alertsActive = true;
+                    localStorage.setItem('alertsActive', 'true');
+                    notifyBtnObj.textContent = 'Disable Alerts';
+                    alert('Notifications successfully enabled!');
+                    logAudit('Enabled notifications', localStorage.getItem('crimeUser') || 'Citizen');
+                } else {
+                    alert('Notification permission: ' + permission);
+                }
+            } else {
+                alertsActive = false;
+                localStorage.setItem('alertsActive', 'false');
+                notifyBtnObj.textContent = 'Enable Alerts';
+                alert('Notifications disabled!');
+                logAudit('Disabled notifications', localStorage.getItem('crimeUser') || 'Citizen');
+            }
+        });
+
+        function toRad(x) { return x * Math.PI / 180; }
+        function haversineKm(lat1, lon1, lat2, lon2) {
+            const R = 6371, dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+            const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+            return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+        function findNearestStation(userLat, userLon) {
+            let nearest = null;
+            for (const s of report.nearby_police_stations || []) {
+                if (typeof s.latitude !== 'number' || typeof s.longitude !== 'number') continue;
+                const d = haversineKm(userLat, userLon, s.latitude, s.longitude);
+                if (!nearest || d < nearest.distanceKm) nearest = { ...s, distanceKm: d };
+            }
+            return nearest;
+        }
+
+        const topHotspot = (report.top_hotspots || [])[0];
+        if (report.alerts && report.alerts.length) notifyUser(report.alerts[0]);
+        
+        // SOS Button Logic
+        document.getElementById('sosBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('sosBtn');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            
+            let lat = 28.6139;
+            let lon = 77.2090;
+            try {
+                const locText = document.getElementById('userLocation')?.textContent || '';
+                if (locText.includes('live location') || locText.includes('location:')) {
+                    const coordsPart = locText.split(':')[1] || locText.split('location:')[1];
+                    if (coordsPart) {
+                        const parts = coordsPart.split(',');
+                        const parsedLat = parseFloat(parts[0]);
+                        const parsedLon = parseFloat(parts[1]);
+                        if (!isNaN(parsedLat) && !isNaN(parsedLon)) {
+                            lat = parsedLat;
+                            lon = parsedLon;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing userLocation for SOS:", e);
+            }
+
+            const payload = {
+                location: `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+                status: "Active"
+            };
+            
+            const res = await postBackendJson('/sos', payload);
+            if (res.error) {
+                alert('SOS request failed: ' + res.error);
+            } else {
+                alert('🚨 SOS Dispatched! Control Room Notified.');
+                logAudit('Triggered Emergency SOS', localStorage.getItem('crimeUser') || 'Citizen');
+                loadSos();
+            }
+            
+            btn.textContent = '🚨 SOS Emergency';
+            btn.disabled = false;
+        });
+
+        let previousSosIds = new Set();
+        async function loadSos() {
+            const table = document.getElementById('sosBody');
+            if (!table) return;
+            const res = await getBackendJson('/sos');
+            if (!res || !Array.isArray(res)) {
+                table.innerHTML = '<tr><td colspan="4" class="muted">No active SOS alerts.</td></tr>';
+                return;
+            }
+            
+            const currentRole = localStorage.getItem('crimeRole') || 'citizen';
+            if (currentRole === 'officer' || currentRole === 'analyst') {
+                const isInitialLoad = previousSosIds.size === 0;
+                res.forEach(r => {
+                    const id = r._id || r.id;
+                    if (id && !previousSosIds.has(id)) {
+                        if (!isInitialLoad) {
+                            notifyUser(`🚨 EMERGENCY: New SOS Alert from ${r.location}!`);
+                            alert(`🚨 EMERGENCY: New SOS Alert from ${r.location}!`);
+                        }
+                        previousSosIds.add(id);
+                    }
+                });
+            }
+
+            if (res.length === 0) {
+                table.innerHTML = '<tr><td colspan="4" class="muted">No active SOS alerts.</td></tr>';
+                return;
+            }
+            table.innerHTML = res.map(r => `<tr style="color: #ef4444; font-weight: bold;"><td>${r._id || r.id || ''}</td><td>${safeFormatDateTime(r.createdAt || r.time)}</td><td>${r.location}</td><td>${r.status || 'Active'}</td></tr>`).join('');
+        }
+        document.getElementById('refreshSosBtn')?.addEventListener('click', loadSos);
+        loadSos();
+        setInterval(loadSos, 15000);
+        
+        // Alert Polling for Officers & Analysts
+        let lastAlertCheck = Date.now() - 5000;
+        async function checkNewAlerts() {
+            if (!localStorage.getItem('crimeToken')) return;
+            const role = localStorage.getItem('crimeRole') || 'citizen';
+            if (role !== 'officer' && role !== 'analyst' && role !== 'admin') return;
+
+            const res = await getBackendJson(`/alerts/recent?since=${lastAlertCheck}`);
+            if (res && res.alerts && res.alerts.length > 0) {
+                res.alerts.forEach(a => notifyUser(`🚨 ALERT: ${a.message}`));
+                lastAlertCheck = Date.now();
+            }
+        }
+        setInterval(checkNewAlerts, 10000);
+        
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition((pos) => {
+                const userLat = pos.coords.latitude, userLon = pos.coords.longitude;
+                document.getElementById('userLocation').textContent = `Your live location: ${userLat.toFixed(5)}, ${userLon.toFixed(5)}`;
+                if (topHotspot && typeof topHotspot.latitude === 'number' && typeof topHotspot.longitude === 'number') {
+                    const d = haversineKm(userLat, userLon, topHotspot.latitude, topHotspot.longitude);
+                    document.getElementById('distanceToHotspot').textContent = `Distance to top hotspot (${topHotspot.district}): ${d.toFixed(2)} km`;
+                    if (d <= 10) notifyUser(`Warning: You are within ${d.toFixed(1)} km of hotspot ${topHotspot.district}.`);
+                }
+                const nearest = findNearestStation(userLat, userLon);
+                if (nearest) document.getElementById('nearestStationText').innerHTML = `Nearest station: <b>${nearest.name}</b> (${nearest.distanceKm.toFixed(2)} km) - <a target="_blank" href="${nearest.maps_url}">Navigate</a>`;
+            }, () => { document.getElementById('userLocation').textContent = 'Location permission denied or unavailable.'; }, { enableHighAccuracy:true, maximumAge:10000, timeout:20000 });
+        }
+
+        async function drawChart() {
+            const data = await getBackendJson('/stats');
+            const labels = (data && data.categoryLabels && data.categoryLabels.length) ? data.categoryLabels : categoryLabels;
+            const values = (data && data.categoryValues && data.categoryValues.length) ? data.categoryValues : categoryValues;
+            
+            const c = document.getElementById('catChart'); if (!c) return; const x = c.getContext('2d');
+            x.clearRect(0,0,c.width,c.height);
+            const maxV = Math.max(1, ...(values.length ? values : [1]));
+            const bw = Math.max(24, Math.floor((c.width - 40) / Math.max(1, values.length)) - 8);
+            values.forEach((v,i) => {
+                const h = Math.floor((v / maxV) * (c.height - 60));
+                const bx = 24 + i*(bw+8), by = c.height - h - 24;
+                x.fillStyle = '#22c55e'; x.fillRect(bx, by, bw, h);
+                x.fillStyle = '#cbd5e1'; x.font = '12px sans-serif'; x.fillText(String(v), bx + 2, by - 4);
+                x.fillStyle = '#93c5fd'; x.fillText(String(labels[i]).slice(0, 9), bx, c.height - 8);
+            });
+        }
+        drawChart();
+
+        let liveComplaints = [];
+        let mainMap, formMap, formMarker;
+        let mainMapMarkers = [];
+
+        // 1. Initialize Interactive Main Hotspot Map
+        function initMainMap() {
+            if (mainMap) return;
+            const container = document.getElementById('mainMap');
+            if (!container) return;
+            mainMap = L.map('mainMap').setView([20.5937, 78.9629], 5); // Center of India
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(mainMap);
+            renderMainMapMarkers();
+        }
+
+        // 2. Render markers for Hotspots and live complaints
+        function renderMainMapMarkers() {
+            if (!mainMap) return;
+            // Clear existing markers
+            mainMapMarkers.forEach(m => mainMap.removeLayer(m));
+            mainMapMarkers = [];
+
+            const t = document.getElementById('fType').value;
+            const s = document.getElementById('fSeverity').value;
+
+            // Combine dataset hotspots and live citizen-reported complaints
+            const reports = (report.incidents || []).map(i => ({
+                id: i.id,
+                lat: i.latitude,
+                lon: i.longitude,
+                category: i.crime_type,
+                severity: i.severity,
+                district: i.district,
+                source: "Analyst Hotspot Feed",
+                time: i.time
+            }));
+
+            const complaints = liveComplaints.map(c => ({
+                id: c.complaint_id || c._id,
+                lat: c.latitude || 19.0760,
+                lon: c.longitude || 72.8777,
+                category: c.crime_type || c.category,
+                severity: c.ai_severity || 'Low',
+                district: c.district || 'Mumbai',
+                source: `Citizen Report (${c.anonymous ? 'Anonymous' : (c.user_name || 'Citizen')})`,
+                time: c.created_date || c.createdAt || c.time
+            }));
+
+            const combined = [...reports, ...complaints];
+            updateTypeFilters(combined);
+
+            const filtered = combined.filter(i => 
+                (t === 'All' || i.category === t) && 
+                (s === 'All' || i.severity === s)
+            );
+
+            filtered.forEach(item => {
+                const color = item.severity === 'High' ? '#ef4444' : (item.severity === 'Medium' ? '#f59e0b' : '#22c55e');
+                const marker = L.circleMarker([item.lat, item.lon], {
+                    radius: 10,
+                    fillColor: color,
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.7
+                }).addTo(mainMap);
+
+                marker.bindPopup(`
+                    <div style="font-family: sans-serif; line-height: 1.4; color: white;">
+                        <h4 style="margin:0 0 5px; color:${color};">${item.category.toUpperCase()}</h4>
+                        <b>ID:</b> ${item.id.slice(-6)}<br>
+                        <b>Source:</b> ${item.source}<br>
+                        <b>District:</b> ${item.district}<br>
+                        <b>Severity:</b> <span class="badge" style="background:${color}33; color:${color}; font-weight:bold; padding:2px 6px; border-radius:4px;">${item.severity}</span><br>
+                        <b>Time:</b> ${safeFormatDateTime(item.time)}<br>
+                        <div style="margin-top:8px;">
+                            <button onclick="dispatchOfficer('${item.id}', '${item.district}')" class="btn-main" style="padding:4px 8px; font-size:11px; border-radius:4px; border:none; cursor:pointer;">Dispatch Patrol</button>
+                        </div>
+                    </div>
+                `);
+                mainMapMarkers.push(marker);
+            });
+        }
+
+        // Global dispatch officer simulation
+        window.dispatchOfficer = function(id, district) {
+            alert(`🚨 Dispatch request received for incident ${id.slice(-6)} in ${district}. Officers are en route.`);
+            logAudit(`Dispatched officers to ${district} for incident ${id.slice(-6)}`, localStorage.getItem('crimeUser') || 'Police');
+        }
+
+        function updateTypeFilters(incidents) {
+            const fType = document.getElementById('fType');
+            if (!fType) return;
+            const currentVal = fType.value;
+            const uniqueTypes = Array.from(new Set(incidents.map(i => i.category || i.crime_type).filter(Boolean)));
+            fType.innerHTML = '<option value="All">All Crime Types</option>';
+            uniqueTypes.forEach(type => {
+                const o = document.createElement('option');
+                o.textContent = type;
+                o.value = type;
+                fType.appendChild(o);
+            });
+            fType.value = currentVal;
+            if (fType.selectedIndex === -1) fType.value = 'All';
+        }
+
+        document.getElementById('applyHeat').addEventListener('click', () => {
+            renderMainMapMarkers();
+            logAudit('Applied Map Filters', localStorage.getItem('crimeUser') || 'Citizen');
+        });
+
+        // 3. Automatic Location Detection for Citizen Reporting
+        async function autoDetectFormLocation() {
+            const latField = document.getElementById('cLat');
+            const lonField = document.getElementById('cLon');
+            const distField = document.getElementById('cDistrict');
+            
+            if (distField) {
+                distField.value = '';
+                distField.placeholder = "Auto-detecting location...";
+            }
+            if (latField) { latField.value = ''; latField.placeholder = "Auto-detecting..."; }
+            if (lonField) { lonField.value = ''; lonField.placeholder = "Auto-detecting..."; }
+
+            const getCoords = () => new Promise((resolve) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                        () => resolve(null),
+                        { timeout: 8000 }
+                    );
+                } else {
+                    resolve(null);
+                }
+            });
+
+            const coords = await getCoords();
+            if (coords) {
+                const { lat, lon } = coords;
+                if (latField) latField.value = lat.toFixed(6);
+                if (lonField) lonField.value = lon.toFixed(6);
+                
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`);
+                    const data = await response.json();
+                    if (data && data.address) {
+                        const addr = data.address;
+                        const dist = addr.city || addr.town || addr.suburb || addr.county || addr.state_district || addr.state || 'Mumbai';
+                        if (distField) distField.value = dist;
+                    }
+                } catch (e) {
+                    console.error("Geocoding failed:", e);
+                    if (distField) distField.value = 'Mumbai';
+                }
+            } else {
+                console.warn("Geolocation failed or denied. Using default coords.");
+                if (latField) latField.value = "19.076000";
+                if (lonField) lonField.value = "72.877700";
+                if (distField) {
+                    distField.value = "Mumbai (Default)";
+                    distField.placeholder = "Failed to detect. Enter manually or edit.";
+                }
+            }
+        }
+
+        // 4. Load complaints and render main map/table
+        async function loadComplaints() {
+            const res = await getBackendJson('/complaints');
+            if (!res || !Array.isArray(res)) return;
+            liveComplaints = res;
+            
+            const complaintsBody = document.getElementById('complaintsBody');
+            if (complaintsBody) {
+                complaintsBody.innerHTML = res.map(r => `
+                    <tr>
+                        <td>${r.complaint_id?.slice(-6) || r.id?.slice(-6) || r._id?.slice(-6) || ''}</td>
+                        <td>${r.crime_type || r.category || ''}</td>
+                        <td>${r.district || ''}</td>
+                        <td>${r.ai_severity || 'Low'}</td>
+                        <td>${r.anonymous ? 'Anonymous' : (r.user_name || r.reported_by || 'Citizen')}</td>
+                        <td>${safeFormatDateTime(r.created_date || r.createdAt || r.time)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            const officerBody = document.getElementById('officerComplaintsBody');
+            if (officerBody) {
+                officerBody.innerHTML = res.map(r => {
+                    const lat = typeof r.latitude === 'number' ? r.latitude : parseFloat(r.latitude);
+                    const lon = typeof r.longitude === 'number' ? r.longitude : parseFloat(r.longitude);
+                    const coordStr = (!isNaN(lat) && !isNaN(lon)) ? `${lat.toFixed(4)}, ${lon.toFixed(4)}` : 'N/A';
+                    return `
+                        <tr>
+                            <td><b>${r.complaint_id?.slice(-6) || r.id?.slice(-6) || r._id?.slice(-6) || ''}</b></td>
+                            <td>${r.crime_type || r.category || ''}</td>
+                            <td>${r.district || ''}</td>
+                            <td><code>${coordStr}</code></td>
+                            <td><span class="badge badge-danger">${r.ai_severity || 'Low'}</span></td>
+                            <td>${r.anonymous ? 'Anonymous' : (r.user_name || r.reported_by || 'Citizen')}</td>
+                            <td><small>${safeFormatDateTime(r.created_date || r.createdAt || r.time)}</small></td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            if (mainMap) renderMainMapMarkers();
+        }
+
+        // 5. FormData Secure Complaint Submission with Evidence upload
+        document.getElementById('complaintForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('crimeToken');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const formData = new FormData();
+            formData.append('title', `Incident report: ${document.getElementById('cCategory').value}`);
+            formData.append('category', document.getElementById('cCategory').value);
+            formData.append('crime_type', document.getElementById('cCategory').value);
+            formData.append('district', document.getElementById('cDistrict').value);
+            formData.append('desc', document.getElementById('cDesc').value);
+            formData.append('anonymous', document.getElementById('cAnon').checked);
+            formData.append('phone', document.getElementById('cPhone').value);
+            formData.append('name', document.getElementById('cName').value);
+            
+            const lat = document.getElementById('cLat').value;
+            const lon = document.getElementById('cLon').value;
+            if (lat) formData.append('latitude', lat);
+            if (lon) formData.append('longitude', lon);
+
+            const fileInput = document.getElementById('cEvidence');
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('images_videos', fileInput.files[i]);
+            }
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                const res = await fetch(`${API_BASE}/complaints`, {
+                    method: 'POST',
+                    headers,
+                    body: formData
+                });
+                const data = await res.json();
+                if (!res.ok || data.error) {
+                    alert('Error submitting complaint: ' + (data.error || 'Unknown error'));
+                    return;
+                }
+                logAudit('Complaint submitted', document.getElementById('cAnon').checked ? 'Anonymous' : (localStorage.getItem('crimeUser') || 'Citizen'));
+                loadComplaints();
+                if (typeof drawChart === 'function') drawChart();
+                alert('Complaint submitted securely with location coordinates and evidence.');
+                e.target.reset();
+                if (formMarker) {
+                    formMap.removeLayer(formMarker);
+                    formMarker = null;
+                }
+            } catch (err) {
+                alert('Network error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Submit Complaint';
+            }
+        });
+
+        // 6. Statistics Filters and generation
+        function filterStats() {
+            const state = document.getElementById('statStateFilter').value;
+            const dist = document.getElementById('statDistrictFilter').value;
+            const type = document.getElementById('statTypeFilter').value;
+            const time = document.getElementById('statTimeFilter').value;
+
+            const rows = document.querySelectorAll('#incidentsBody tr');
+
+            rows.forEach(r => {
+                const rowType = r.getAttribute('data-type');
+                const cells = r.getElementsByTagName('td');
+                if (cells.length < 5) return;
+
+                const rowDist = cells[1].textContent.trim();
+
+                let matches = true;
+                if (dist !== 'All' && rowDist.toLowerCase() !== dist.toLowerCase()) matches = false;
+                if (type !== 'All' && rowType.toLowerCase() !== type.toLowerCase()) matches = false;
+                
+                // Simple state mappings
+                const stateMap = {
+                    'mumbai': 'Maharashtra', 'new delhi': 'Delhi', 'bengaluru': 'Karnataka',
+                    'chennai': 'Tamil Nadu', 'lucknow': 'Uttar Pradesh', 'arwal': 'Bihar', 'visakhapatnam': 'Andhra Pradesh'
+                };
+                const rowState = stateMap[rowDist.toLowerCase()] || 'Maharashtra';
+                if (state !== 'All' && rowState.toLowerCase() !== state.toLowerCase()) matches = false;
+
+                if (matches) {
+                    r.style.display = '';
+                } else {
+                    r.style.display = 'none';
+                }
+            });
+            logAudit('Applied Stats filters', localStorage.getItem('crimeUser') || 'Citizen');
+        }
+
+        document.getElementById('statStateFilter').addEventListener('change', filterStats);
+        document.getElementById('statDistrictFilter').addEventListener('change', filterStats);
+        document.getElementById('statTypeFilter').addEventListener('change', filterStats);
+        document.getElementById('statTimeFilter').addEventListener('change', filterStats);
+
+        document.getElementById('btnGenerateReport').addEventListener('click', () => {
+            logAudit('Generated Crime PDF/Print Report', localStorage.getItem('crimeUser') || 'Citizen');
+            window.print();
+        });
+
+        loadComplaints();
+
+        document.getElementById('portalLogin').addEventListener('click', () => {
+            const pin = document.getElementById('portalPin').value;
+            if (pin === String(report.portal?.demo_pin || '4321')) {
+                document.getElementById('portalArea').style.display = 'block';
+                logAudit('Police portal login success', localStorage.getItem('crimeUser') || 'Police');
+            } else {
+                alert('Invalid PIN');
+                logAudit('Police portal login failed', 'Unknown');
+            }
+        });
+        async function loadCases() {
+            const res = await getBackendJson('/cases');
+            if (!res || !Array.isArray(res)) return;
+            document.getElementById('casesBody').innerHTML = res.map(r => `<tr><td>${r.id || r._id?.slice(-6) || ''}</td><td>${r.officer}</td><td>${r.status}</td><td>${r.priority}</td><td>${safeFormatDateTime(r.created_date || r.createdAt || r.time)}</td></tr>`).join('');
+        }
+        document.getElementById('caseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = { id: caseId.value, officer: caseOfficer.value, status: caseStatus.value, priority: casePriority.value, notes: caseNotes.value };
+            const res = await postBackendJson('/cases', payload);
+            if (res.error) { alert('Error: ' + res.error); return; }
+            logAudit('Case updated', localStorage.getItem('crimeUser') || 'Police');
+            loadCases();
+            e.target.reset();
+        });
+        loadCases();
+
+        document.getElementById('importDb').addEventListener('click', () => {
+            try {
+                const parsed = JSON.parse(document.getElementById('dbImport').value || '{}');
+                document.getElementById('dbPreview').textContent = JSON.stringify(parsed, null, 2).slice(0, 1500);
+                logAudit('Imported police dataset', localStorage.getItem('crimeUser') || 'Police');
+            } catch { alert('Invalid JSON'); }
+        });
+
+        async function loadWatch() {
+            const res = await getBackendJson('/watch');
+            if (!res || !Array.isArray(res)) return;
+            document.getElementById('watchList').innerHTML = res.map(r => `<li><b>${r.name}</b> - ${r.area}: ${r.plan}</li>`).join('');
+        }
+        document.getElementById('watchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = { name: document.getElementById('watchName').value, area: document.getElementById('watchArea').value, plan: document.getElementById('watchPlan').value };
+            const res = await postBackendJson('/watch', payload);
+            if (res.error) { alert('Error: ' + res.error); return; }
+            logAudit('Neighborhood watch group created', localStorage.getItem('crimeUser') || 'Citizen');
+            loadWatch();
+            e.target.reset();
+        });
+        loadWatch();
+
+        document.getElementById('saveFeedback').addEventListener('click', async () => {
+            const payload = { text: feedbackText.value };
+            const res = await postBackendJson('/feedback', payload);
+            if (res.error) { alert('Error: ' + res.error); return; }
+            logAudit('Feedback submitted', localStorage.getItem('crimeUser') || 'Citizen');
+            feedbackText.value = '';
+            alert('Feedback recorded.');
+        });
+
+        document.getElementById('cyberForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            let lat = 0.0, lon = 0.0, district = "Unknown", state = "Unknown", address = "Unknown";
+            
+            const getCoords = () => new Promise((resolve) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+                        () => resolve(null),
+                        { timeout: 5000 }
+                    );
+                } else {
+                    resolve(null);
+                }
+            });
+
+            const coords = await getCoords();
+            if (coords) {
+                lat = coords.lat;
+                lon = coords.lon;
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`);
+                    const data = await response.json();
+                    if (data && data.address) {
+                        address = data.display_name || "Unknown";
+                        district = data.address.city || data.address.town || data.address.suburb || data.address.county || data.address.state_district || "Unknown";
+                        state = data.address.state || "Unknown";
+                    }
+                } catch (e) {
+                    console.error("Geocoding Error:", e);
+                }
+            }
+
+            const payload = {
+                title: `Cybercrime: ${cyberType.value}`,
+                type: cyberType.value,
+                contact: cyberContact.value,
+                details: cyberDetails.value,
+                latitude: lat,
+                longitude: lon,
+                address: address,
+                state: state,
+                district: district
+            };
+
+            const res = await postBackendJson('/cyber', payload);
+            btn.disabled = false;
+            btn.textContent = 'Report Cybercrime';
+
+            if (res.error) { alert('Error: ' + res.error); return; }
+            logAudit('Cybercrime report submitted', localStorage.getItem('crimeUser') || 'Citizen');
+            alert('Cybercrime report submitted securely with location coordinates.');
+            loadCyberReports();
+            e.target.reset();
+        });
+
+        async function loadCyberReports() {
+            const table = document.getElementById('cyberBody');
+            if (!table) return;
+            const res = await getBackendJson('/cyber');
+            if (!res || !Array.isArray(res)) return;
+            table.innerHTML = res.map(r => {
+                const aiCat = r.ai_analysis?.category || 'UPI/Banking Fraud';
+                const aiConf = r.ai_analysis?.confidence ? (r.ai_analysis.confidence * 100).toFixed(0) + '%' : '92%';
+                const aiSev = r.ai_analysis?.severity || 'High';
+                const aiPrior = r.ai_analysis?.suggested_priority || r.ai_analysis?.priority || 'High';
+                const files = r.images_videos && r.images_videos.length 
+                              ? r.images_videos.map(u => `<a href="${u}" target="_blank" style="color:var(--accent);">View</a>`).join(', ')
+                              : 'None';
+                return `
+                    <tr>
+                        <td><b>${r.title || 'Cyber Incident'}</b></td>
+                        <td>${r.phone || r.contact || 'Anonymous'}</td>
+                        <td><span style="color:var(--accent); font-weight:bold;">${aiCat}</span></td>
+                        <td>${aiConf}</td>
+                        <td><span class="badge badge-danger">${aiSev}</span></td>
+                        <td><span class="badge" style="background:#ef444433; color:#ef4444; font-weight:bold;">${aiPrior}</span></td>
+                        <td>${files}</td>
+                        <td><small>${r.description || r.details || ''}</small></td>
+                        <td><small>${safeFormatDateTime(r.created_date || r.createdAt || r.time)}</small></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        loadCyberReports();
+
+        async function loadCctv() {
+            const res = await getBackendJson('/cctv');
+            if (!res || !Array.isArray(res)) return;
+            document.getElementById('cctvList').innerHTML = res.map(f => `<li><a href="${f.url}" target="_blank">${f.url}</a> - Status: Monitored</li>`).join('');
+        }
+        document.getElementById('addCctv').addEventListener('click', async () => {
+            const url = document.getElementById('cctvUrl').value.trim();
+            if (!url) return;
+            const res = await postBackendJson('/cctv', { url });
+            if (res.error) { alert('Error: ' + res.error); return; }
+            logAudit('CCTV feed linked', localStorage.getItem('crimeUser') || 'Police');
+            document.getElementById('cctvUrl').value = '';
+            loadCctv();
+        });
+        loadCctv();
+
+        const highZones = (report.incidents || []).filter(i => i.severity === 'High').map(i => `${i.district} (${i.crime_type})`);
+        document.getElementById('forecastText').textContent = highZones.length ? `Forecast: Elevated risk zone(s): ${highZones.join(', ')}. Increase patrol + CCTV checks.` : 'Forecast: Current trend stable; maintain regular patrolling and rapid-response units.';
+
+        const texts = {
+            en: { title: 'Crime Command Center', sub: 'Real-time public safety monitoring' },
+            hi: { title: 'अपराध नियंत्रण केंद्र', sub: 'रीयल-टाइम सार्वजनिक सुरक्षा मॉनिटरिंग' },
+            te: { title: 'నేర నియంత్రణ కేంద్రం', sub: 'రియల్-టైమ్ పబ్లిక్ సేఫ్టీ మానిటరింగ్' }
+        };
+        const themeSelect = document.getElementById('themeSelect');
+        function applyTheme(theme) {
+            const selected = ['midnight', 'royal', 'sunset', 'forest'].includes(theme) ? theme : 'midnight';
+            document.body.setAttribute('data-theme', selected);
+            localStorage.setItem('crimeTheme', selected);
+            logAudit(`Theme changed: ${selected}`, localStorage.getItem('crimeUser') || 'Citizen');
+        }
+        const initialTheme = localStorage.getItem('crimeTheme') || 'midnight';
+        themeSelect.value = initialTheme;
+        applyTheme(initialTheme);
+        themeSelect.addEventListener('change', (e) => applyTheme(e.target.value));
+        document.getElementById('langSelect').addEventListener('change', (e) => {
+            const t = texts[e.target.value] || texts.en;
+            document.getElementById('titleText').textContent = t.title;
+            document.getElementById('subtitleText').textContent = `Generated: ${report.generated_at} • ${t.sub}`;
+            logAudit('Language switched', localStorage.getItem('crimeUser') || 'Citizen');
+        });
+
+        document.getElementById('speakBtn').addEventListener('click', () => {
+            const msg = `Crime dashboard update. Total articles ${report.total_crime_articles}. Hotspots ${(report.top_hotspots || []).length}. Alerts ${(report.alerts || []).join('. ')}`;
+            const utter = new SpeechSynthesisUtterance(msg);
+            speechSynthesis.speak(utter);
+            logAudit('Voice summary played', localStorage.getItem('crimeUser') || 'Citizen');
+        });
+
+        const API_BASE = '/api';
+
+        async function getBackendJson(path) {
+            const token = localStorage.getItem('crimeToken');
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            try {
+                const res = await fetch(`${API_BASE}${path}`, { headers });
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data && data.rows ? data.rows : data;
+            } catch {
+                return null;
+            }
+        }
+
+        async function postBackendJson(path, payload, method="POST") {
+            const token = localStorage.getItem('crimeToken');
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            try {
+                const res = await fetch(`${API_BASE}${path}`, {
+                    method,
+                    headers,
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) return { error: await res.text() };
+                return await res.json();
+            } catch (e) {
+                return { error: e.message };
+            }
+        }
+
+        let isRegistering = false;
+        document.getElementById('btnOpenLogin')?.addEventListener('click', () => {
+             isRegistering = false;
+             document.getElementById('modalTitle').textContent = 'Login';
+             document.getElementById('grpName').style.display = 'none';
+             document.getElementById('grpRole').style.display = 'none';
+             document.getElementById('authName').required = false;
+             document.getElementById('authModal').style.display = 'flex';
+        });
+        document.getElementById('btnOpenRegister')?.addEventListener('click', () => {
+             isRegistering = true;
+             document.getElementById('modalTitle').textContent = 'Register';
+             document.getElementById('grpName').style.display = 'block';
+             document.getElementById('grpRole').style.display = 'block';
+             document.getElementById('authName').required = true;
+             document.getElementById('authModal').style.display = 'flex';
+        });
+        document.getElementById('btnCloseModal')?.addEventListener('click', () => {
+             document.getElementById('authModal').style.display = 'none';
+        });
+        document.getElementById('authForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitAuth');
+            btn.disabled = true; btn.textContent = 'Wait...';
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const err = document.getElementById('authError');
+            err.textContent = '';
+            
+            let res;
+            if (isRegistering) {
+                const name = document.getElementById('authName').value;
+                const role = document.getElementById('authRole').value;
+                res = await postBackendJson('/auth/register', { name, email, password, role });
+            } else {
+                res = await postBackendJson('/auth/login', { email, password });
+            }
+            
+            if (res.error) {
+                try { const p = JSON.parse(res.error); err.textContent = p.error || p.msg || res.error; }
+                catch { err.textContent = res.error; }
+            } else {
+                localStorage.setItem('crimeToken', res.token);
+                if (res.role) localStorage.setItem('crimeRole', res.role);
+                // Handle different object structures between register / login endpoints if any
+                localStorage.setItem('crimeUser', res.name || (res.user && res.user.name) || name || 'Citizen');
+                document.getElementById('authModal').style.display = 'none';
+                updateAuthUI();
+            }
+            btn.disabled = false; btn.textContent = isRegistering ? 'Register' : 'Login';
+        });
+        document.getElementById('btnLogout')?.addEventListener('click', () => {
+            localStorage.removeItem('crimeToken');
+            localStorage.removeItem('crimeUser');
+            localStorage.removeItem('crimeRole');
+            window.location.href = '/';
+        });
+        function updateAuthUI() {
+            const user = localStorage.getItem('crimeUser');
+            // Select the main elements to hide when logged out
+            const kpiSection = document.querySelector('.kpis');
+            const mainContent = document.querySelector('.content-layout');
+            const landingPage = document.getElementById('landingPage');
+            const heroSection = document.querySelector('.hero');
+            const container = document.querySelector('.container');
+            
+            if (user) {
+                // Show application when logged in
+                document.getElementById('authControls').style.display = 'none';
+                document.getElementById('userControls').style.display = 'flex';
+                document.getElementById('lblUserName').textContent = user;
+                
+                if (container) container.style.display = 'block';
+                if (kpiSection) kpiSection.style.display = 'grid';
+                if (mainContent) mainContent.style.display = 'flex';
+                if (heroSection) heroSection.style.display = 'flex';
+                if (landingPage) landingPage.style.display = 'none';
+                document.getElementById('authModal').style.display = 'none';
+                
+                // --- Apply Role-Based Interface Restrictions ---
+                const role = localStorage.getItem('crimeRole') || 'citizen';
+                const tabGroups = {
+                    'citizen': ['mapping', 'reporting', 'alerts', 'stats', 'community', 'security', 'advanced', 'accessibility'],
+                    'analyst': ['mapping', 'alerts', 'stats', 'security', 'advanced', 'accessibility'],
+                    'officer': ['mapping', 'reporting', 'alerts', 'stats', 'law', 'community', 'security', 'accessibility']
+                };
+                const allowedTabs = tabGroups[role] || tabGroups['citizen'];
+                
+                const tabReportingBtn = document.querySelector('.tab[data-tab="reporting"]');
+                if (tabReportingBtn) {
+                    tabReportingBtn.textContent = (role === 'officer') ? 'Reported Crime' : 'Incident Reporting';
+                }
+                
+                document.querySelectorAll('.tab').forEach(t => {
+                    if (allowedTabs.includes(t.dataset.tab)) {
+                        t.style.display = 'inline-flex'; // Assuming flex or inline-block, inline-flex matches standard button tab styling
+                    } else {
+                        t.style.display = 'none';
+                    }
+                });
+                
+                // Force an allowed tab active to prevent them from landing on a hidden tab visually
+                const activeTab = document.querySelector('.tab.active');
+                if (activeTab && activeTab.style.display === 'none') {
+                    const firstAllowed = document.querySelector(`.tab[data-tab="${allowedTabs[0]}"]`);
+                    if (firstAllowed) firstAllowed.click();
+                }
+
+                // If officer logs in, instantly unlock the Law Enforcement Portal tab functionality
+                if (role === 'officer') {
+                    const portalArea = document.getElementById('portalArea');
+                    const pinBox = document.getElementById('portalPin');
+                    if (pinBox && pinBox.parentElement) pinBox.parentElement.style.display = 'none'; // hide the controls div
+                    if (portalArea) portalArea.style.display = 'block';
+                }
+                
+                // Remove SOS feature for Analyst and Officer
+                const sosBtn = document.getElementById('sosBtn');
+                if (sosBtn) {
+                    sosBtn.style.display = (role === 'citizen') ? 'inline-block' : 'none';
+                }
+                
+                // Hide Crime Submission Forms from Analysts and Officers
+                const cardReqCom = document.getElementById('cardReportComplaint');
+                if (cardReqCom) cardReqCom.style.display = (role === 'citizen') ? 'block' : 'none';
+                const cardReqCyb = document.getElementById('cardReportCyber');
+                if (cardReqCyb) cardReqCyb.style.display = (role === 'citizen') ? 'block' : 'none';
+                
+                // Show Read-Only Logs for Analysts and Officers
+                const cardViewCyb = document.getElementById('cardViewCyber');
+                 if (cardViewCyb) {
+                      cardViewCyb.style.display = (role === 'analyst' || role === 'admin') ? 'block' : 'none';
+                      if (role === 'analyst' || role === 'admin') loadCyberReports();
+                 }
+                
+                // Hide SOS Board from Citizens
+                const cardSosBoard = document.getElementById('cardSosBoard');
+                if (cardSosBoard) {
+                    cardSosBoard.style.display = (role !== 'citizen') ? 'block' : 'none';
+                }
+
+                // Hide Incidents Table in Statistics tab for Analyst
+                const cardIncInc = document.getElementById('cardIncidentsTable');
+                if (cardIncInc) {
+                    cardIncInc.style.display = (role === 'analyst') ? 'none' : 'block';
+                }
+
+                // Control Room Visibility & Reporting Form Layout Adjustment
+                const cardCtrlRoom = document.getElementById('cardControlRoom');
+                if (cardCtrlRoom) {
+                    const hideControlRoom = (role === 'citizen' || role === 'analyst');
+                    cardCtrlRoom.style.display = hideControlRoom ? 'none' : 'block';
+                    if (cardReqCom) {
+                        if (hideControlRoom) {
+                            cardReqCom.parentElement.style.gridTemplateColumns = '1fr';
+                        } else {
+                            cardReqCom.parentElement.style.gridTemplateColumns = '1.25fr 1fr';
+                        }
+                    }
+                }
+                
+                loadComplaints();
+                renderAudit();
+                if (typeof drawChart === 'function') drawChart();
+                
+            } else {
+                // Not logged in -> Redirect to custom landing page
+                window.location.href = '/';
+            }
+        }
+        
+        document.getElementById('btnLandingLogin')?.addEventListener('click', () => {
+             isRegistering = false;
+             document.getElementById('modalTitle').textContent = 'Login';
+             document.getElementById('grpName').style.display = 'none';
+             document.getElementById('authName').required = false;
+             const btnSubmit = document.getElementById('btnSubmitAuth');
+             if(btnSubmit) btnSubmit.textContent = 'Login';
+             document.getElementById('authModal').style.display = 'flex';
+        });
+        
+        const openLandingRegister = () => {
+             isRegistering = true;
+             document.getElementById('modalTitle').textContent = 'Register';
+             document.getElementById('grpName').style.display = 'block';
+             document.getElementById('authName').required = true;
+             const btnSubmit = document.getElementById('btnSubmitAuth');
+             if(btnSubmit) btnSubmit.textContent = 'Register';
+             document.getElementById('authModal').style.display = 'flex';
+        };
+        document.getElementById('btnLandingRegister')?.addEventListener('click', openLandingRegister);
+        document.getElementById('btnHeroRegister')?.addEventListener('click', openLandingRegister);
+        document.getElementById('btnGoogleLogin')?.addEventListener('click', () => {
+            alert('Google Login requested! To enable real Google Login, set up OAuth credentials in the Google Cloud Console and implement backend verification.');
+        });
+        
+        setTimeout(updateAuthUI, 100);
+
+        async function refreshApiStatus() {
+            const line = document.getElementById('apiStatusLine');
+            const info = await getBackendJson('/health/details');
+            if (!info) {
+                line.textContent = 'API: offline or unreachable';
+                line.classList.remove('status-live');
+                line.classList.add('status-watch');
+                return;
+            }
+            line.textContent = `API: live | Uptime: ${info.uptime_seconds || 0}s | Complaints: ${info.counts?.complaints || 0} | Cases: ${info.counts?.cases || 0}`;
+            line.classList.remove('status-watch');
+            line.classList.add('status-live');
+        }
+
+        function renderQuickSearchRows(rows) {
+            const body = document.getElementById('quickSearchBody');
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="5" class="muted">No matches found.</td></tr>';
+                return;
+            }
+            body.innerHTML = rows.map(r => `<tr><td>${r.source || ''}</td><td>${r.title || ''}</td><td>${r.district || ''}</td><td>${r.status || ''}</td><td>${r.time || ''}</td></tr>`).join('');
+        }
+
+        async function runQuickSearch() {
+            const input = document.getElementById('quickSearchInput');
+            const q = input.value.trim();
+            if (!q) {
+                renderQuickSearchRows([]);
+                return;
+            }
+            const payload = await getBackendJson(`/search?q=${encodeURIComponent(q)}&limit=20`);
+            if (!payload || !Array.isArray(payload.rows)) {
+                renderQuickSearchRows([]);
+                return;
+            }
+            renderQuickSearchRows(payload.rows);
+        }
+
+        document.getElementById('quickSearchBtn').addEventListener('click', runQuickSearch);
+        document.getElementById('quickSearchInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                runQuickSearch();
+            }
+        });
+
+        refreshApiStatus();
+        setInterval(refreshApiStatus, 20000);
+
+        renderAudit();
+        setTimeout(initMainMap, 300);
+    </script>
+</body>
+</html>

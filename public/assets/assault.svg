@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Assault">
+  <rect width="128" height="128" rx="20" fill="#1f2937"/>
+  <circle cx="45" cy="42" r="12" fill="#fca5a5"/>
+  <circle cx="84" cy="42" r="12" fill="#93c5fd"/>
+  <path d="M26 92c6-20 16-32 30-32s24 12 30 32" fill="none" stroke="#f59e0b" stroke-width="8" stroke-linecap="round"/>
+  <path d="M50 66l12 10M78 66L66 76" stroke="#ef4444" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,512 @@
+{
+  "complaints": [
+    {
+      "category": "Theft",
+      "district": "Vadodara",
+      "desc": "kjgnsrkgns",
+      "anonymous": false,
+      "id": "CMP-1783317336",
+      "status": "New",
+      "user_id": "USR-1783317178",
+      "user_name": "jeesu",
+      "ai_severity": "Medium",
+      "ai_confidence": 0.65,
+      "time": "2026-07-06T11:25:36"
+    },
+    {
+      "category": "Theft",
+      "district": "Thane",
+      "name": "Test User 1",
+      "desc": "Sample complaint for search test",
+      "id": "CMP-1",
+      "status": "New",
+      "ai_severity": "Medium",
+      "time": "2026-03-05T08:22:26"
+    },
+    {
+      "id": "CMP-2",
+      "name": "Test User 2",
+      "phone": "9876543210",
+      "category": "Assault",
+      "district": "Guntur",
+      "desc": "Sample assault complaint",
+      "anonymous": false,
+      "ai_severity": "High",
+      "time": "2026-03-05T10:22:26"
+    },
+    {
+      "id": "CMP-3",
+      "name": "Test User 3",
+      "phone": "9123456789",
+      "category": "Fraud",
+      "district": "Mumbai",
+      "desc": "Sample fraud complaint",
+      "anonymous": false,
+      "ai_severity": "Low",
+      "time": "2026-03-05T12:22:26"
+    },
+    {
+      "id": "CMP-4",
+      "name": "Test User 4",
+      "phone": "9012345678",
+      "category": "Theft",
+      "district": "Delhi",
+      "desc": "Another theft complaint",
+      "anonymous": false,
+      "ai_severity": "Low",
+      "time": "2026-03-05T14:22:26"
+    },
+    {
+      "id": "CMP-5",
+      "name": "Test User 5",
+      "phone": "8765432109",
+      "category": "Assault",
+      "district": "Bangalore",
+      "desc": "Another assault complaint",
+      "anonymous": false,
+      "ai_severity": "Medium",
+      "time": "2026-03-05T16:22:26"
+    }
+  ],
+  "cases": [],
+  "watch": [],
+  "feedback": [],
+  "cyber": [],
+  "cctv": [],
+  "audit": [
+    {
+      "action": "Complaint created: CMP-1783317336 (AI Severity: Medium)",
+      "actor": "jeesu",
+      "time": "2026-07-06T11:25:36"
+    },
+    {
+      "action": "SOS Alert: SOS-1783317194 - Emergency at 22.2883, 73.3640",
+      "actor": "Emergency",
+      "time": "2026-07-06T11:23:14"
+    },
+    {
+      "action": "User registered: jeesu@gmail.com",
+      "actor": "jeesu",
+      "time": "2026-07-06T11:22:58"
+    },
+    {
+      "action": "User logged in: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-30T10:57:41"
+    },
+    {
+      "action": "SOS Alert: SOS-1774673944 - Emergency at 28.6139, 77.2090",
+      "actor": "Emergency",
+      "time": "2026-03-28T10:29:04"
+    },
+    {
+      "action": "SOS Alert: SOS-1774673345 - Emergency at 22.2898, 73.3642",
+      "actor": "Emergency",
+      "time": "2026-03-28T10:19:05"
+    },
+    {
+      "action": "SOS Alert: SOS-1774673325 - Emergency at 22.2898, 73.3642",
+      "actor": "Emergency",
+      "time": "2026-03-28T10:18:45"
+    },
+    {
+      "action": "SOS Alert: SOS-1774672931 - Emergency at 28.6139, 77.2090",
+      "actor": "Emergency",
+      "time": "2026-03-28T10:12:11"
+    },
+    {
+      "action": "User registered: vamsi@gmail.com",
+      "actor": "vamsi",
+      "time": "2026-03-28T10:12:08"
+    },
+    {
+      "action": "User logged in: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-28T10:11:40"
+    },
+    {
+      "action": "User logged in: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-28T10:04:28"
+    },
+    {
+      "action": "SOS Alert: SOS-1774671922 - Emergency at 22.2898, 73.3642",
+      "actor": "Emergency",
+      "time": "2026-03-28T09:55:22"
+    },
+    {
+      "action": "SOS Alert: SOS-1774671859 - Emergency at 22.2898, 73.3642",
+      "actor": "Emergency",
+      "time": "2026-03-28T09:54:19"
+    },
+    {
+      "action": "User logged in: kareem@gmail.com",
+      "actor": "Kareem",
+      "time": "2026-03-28T09:53:45"
+    },
+    {
+      "action": "User logged in: kareem@gmail.com",
+      "actor": "Kareem",
+      "time": "2026-03-28T09:44:46"
+    },
+    {
+      "action": "SOS Alert: SOS-1774671261 - Emergency at 28.6139, 77.2090",
+      "actor": "Emergency",
+      "time": "2026-03-28T09:44:21"
+    },
+    {
+      "action": "User logged in: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-28T09:44:16"
+    },
+    {
+      "action": "User registered: kareem@gmail.com",
+      "actor": "Kareem",
+      "time": "2026-03-28T09:12:55"
+    },
+    {
+      "action": "SOS Alert: SOS-1774669297 - Emergency at 28.6139, 77.2090",
+      "actor": "Emergency",
+      "time": "2026-03-28T09:11:37"
+    },
+    {
+      "action": "User logged in: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-28T09:11:35"
+    },
+    {
+      "action": "User logged in: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-28T09:04:12"
+    },
+    {
+      "action": "SOS Alert: SOS-1774668077 - Emergency at 28.6139, 77.2090",
+      "actor": "Emergency",
+      "time": "2026-03-28T08:51:17"
+    },
+    {
+      "action": "User logged in: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-28T08:35:14"
+    },
+    {
+      "action": "User registered: nani123@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-28T08:31:49"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:57:57"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:57:47"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:50:02"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:49:51"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:47:43"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:44:28"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:24:39"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:21:59"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T02:04:18"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T01:47:05"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T01:42:03"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T01:34:20"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T01:33:53"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T01:06:10"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T01:03:36"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-18T00:52:00"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-17T22:41:18"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-17T22:35:26"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-17T22:14:09"
+    },
+    {
+      "action": "User logged in: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-17T22:00:27"
+    },
+    {
+      "action": "User registered: nani2508@gmail.com",
+      "actor": "nani",
+      "time": "2026-03-17T21:59:50"
+    },
+    {
+      "action": "User registered: nani1@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-17T18:56:18"
+    },
+    {
+      "action": "User logged in: nani@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-17T18:42:40"
+    },
+    {
+      "action": "User registered: nani@gmail.com",
+      "actor": "Nani",
+      "time": "2026-03-17T18:42:27"
+    },
+    {
+      "action": "User logged in: test_7dhqeb@example.com",
+      "actor": "Test User 7dhqeb",
+      "time": "2026-03-17T18:39:46"
+    },
+    {
+      "action": "User registered: test_7dhqeb@example.com",
+      "actor": "Test User 7dhqeb",
+      "time": "2026-03-17T18:39:46"
+    },
+    {
+      "action": "User logged in: narasimhamchowdary143@gmail.com",
+      "actor": "NARASIMHAM",
+      "time": "2026-03-17T18:14:04"
+    },
+    {
+      "action": "User registered: narasimhamchowdary143@gmail.com",
+      "actor": "NARASIMHAM",
+      "time": "2026-03-17T18:12:33"
+    },
+    {
+      "action": "Complaint created: CMP-1772679146",
+      "actor": "Citizen",
+      "time": "2026-03-05T08:22:26"
+    }
+  ],
+  "stations": [
+    {
+      "name": "Central Station",
+      "officers_total": 12
+    },
+    {
+      "name": "North Station",
+      "officers_total": 10
+    },
+    {
+      "name": "South Station",
+      "officers_total": 8
+    }
+  ],
+  "users": [
+    {
+      "id": "USR-1773751353",
+      "name": "NARASIMHAM",
+      "email": "narasimhamchowdary143@gmail.com",
+      "password": "b685c784cb080e12be01e703d22251573d614bd3f6e3c02c08916a4c92390d59",
+      "token": "aabde56e8b076a60eaf76376c72c06886998e71897bdd26186368a9e32c2b8ce",
+      "role": "citizen",
+      "created_at": "2026-03-17T18:12:33"
+    },
+    {
+      "id": "USR-1773752986",
+      "name": "Test User 7dhqeb",
+      "email": "test_7dhqeb@example.com",
+      "password": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "token": "d0d60ca7cf9ee0066b98fc8e222337922590edcb65b71aaa253f3b5b9e0d0302",
+      "role": "citizen",
+      "created_at": "2026-03-17T18:39:46"
+    },
+    {
+      "id": "USR-1773753147",
+      "name": "Nani",
+      "email": "nani@gmail.com",
+      "password": "adce378a9a96cd88ac1d833dc85eb2b5abe2209239ced07c312dbf806b4116a3",
+      "token": "5cccd6b574d553dd116050e3d8fa058b37f396da98d676431d3cc7c41e667b29",
+      "role": "citizen",
+      "created_at": "2026-03-17T18:42:27"
+    },
+    {
+      "id": "USR-1773753978",
+      "name": "Nani",
+      "email": "nani1@gmail.com",
+      "password": "16431890fa2d3603311a28425764b84529594c439f9f364baf3a67d36f312195",
+      "token": "ac757a2539bdffece17b2d7bd90a2ff3a1b93a194cbe47f305bce026d7f003a7",
+      "role": "citizen",
+      "created_at": "2026-03-17T18:56:18"
+    },
+    {
+      "id": "USR-1773764990",
+      "name": "nani",
+      "email": "nani2508@gmail.com",
+      "password": "fb67102d23ebd95430c8edcb9c32033024403242379d5cc5506e9517cd5462e7",
+      "token": "6feea4b4f0c304e9402e41d275532b179fecdf81c043390ec333ffc2febad326",
+      "role": "citizen",
+      "created_at": "2026-03-17T21:59:50"
+    },
+    {
+      "id": "USR-1774666909",
+      "name": "Nani",
+      "email": "nani123@gmail.com",
+      "password": "b685c784cb080e12be01e703d22251573d614bd3f6e3c02c08916a4c92390d59",
+      "token": "597a94b0e5d64c93d8910ad731953ae6eeab03e97429283b3d49cd9f33938baa",
+      "role": "analyst",
+      "created_at": "2026-03-28T08:31:49"
+    },
+    {
+      "id": "USR-1774669375",
+      "name": "Kareem",
+      "email": "kareem@gmail.com",
+      "password": "6508d5b6f617165ffcb115eff76468112af59b54b2911c167776ec9d95dd2e17",
+      "token": "9238132193666dbc4349eb7f2f1586e978a64eb1f46a32c0feb9afaad73c9e9e",
+      "role": "officer",
+      "created_at": "2026-03-28T09:12:55"
+    },
+    {
+      "id": "USR-1774672928",
+      "name": "vamsi",
+      "email": "vamsi@gmail.com",
+      "password": "ec5c584a2f76abaf2ba95dc537d8b83d33a865b02a98d16ddc0ef108c518cc1d",
+      "token": "606c98ced2c041e8535e6659be595f06795a49000ed0bd9e66b9a93ed1121014",
+      "role": "citizen",
+      "created_at": "2026-03-28T10:12:08"
+    },
+    {
+      "id": "USR-1783317178",
+      "name": "jeesu",
+      "email": "jeesu@gmail.com",
+      "password": "a842e14619ce1f44a3192605ec17b5f31490b3a9653d94649692af8863d5fb26",
+      "token": "5ac39bf7be1167f101a1ca5b99f81f110443b7978d28e7d935e4fd4e36ba9b56",
+      "role": "citizen",
+      "created_at": "2026-07-06T11:22:58"
+    }
+  ],
+  "sos": [
+    {
+      "location": "22.2883, 73.3640",
+      "status": "Active",
+      "id": "SOS-1783317194",
+      "sos_type": "Emergency",
+      "time": "2026-07-06T11:23:14"
+    },
+    {
+      "location": "28.6139, 77.2090",
+      "status": "Active",
+      "id": "SOS-1774673944",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T10:29:04"
+    },
+    {
+      "location": "22.2898, 73.3642",
+      "status": "Active",
+      "id": "SOS-1774673345",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T10:19:05"
+    },
+    {
+      "location": "22.2898, 73.3642",
+      "status": "Active",
+      "id": "SOS-1774673325",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T10:18:45"
+    },
+    {
+      "location": "28.6139, 77.2090",
+      "status": "Active",
+      "id": "SOS-1774672931",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T10:12:11"
+    },
+    {
+      "location": "22.2898, 73.3642",
+      "status": "Active",
+      "id": "SOS-1774671922",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T09:55:22"
+    },
+    {
+      "location": "22.2898, 73.3642",
+      "status": "Active",
+      "id": "SOS-1774671859",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T09:54:19"
+    },
+    {
+      "location": "28.6139, 77.2090",
+      "status": "Active",
+      "id": "SOS-1774671261",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T09:44:21"
+    },
+    {
+      "location": "28.6139, 77.2090",
+      "status": "Active",
+      "id": "SOS-1774669297",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T09:11:37"
+    },
+    {
+      "location": "28.6139, 77.2090",
+      "id": "SOS-1774668077",
+      "status": "Active",
+      "sos_type": "Emergency",
+      "time": "2026-03-28T08:51:17"
+    }
+  ]
+}
