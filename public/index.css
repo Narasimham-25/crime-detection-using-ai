@@ -441,3 +441,32 @@ body {
         margin-bottom: 3rem;
     }
 }
+
+/* Mobile Safe Area & Touch Optimizations */
+@supports (padding: env(safe-area-inset-bottom)) {
+    .container {
+        padding-top: max(1.5rem, env(safe-area-inset-top));
+        padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+        gap: 2rem;
+    }
+    
+    .hero-content h1 {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+    
+    .auth-card {
+        padding: 1.5rem;
+    }
+
+    input, button, select {
+        min-height: 44px;
+    }
+}
+

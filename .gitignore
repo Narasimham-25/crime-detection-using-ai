@@ -1,5 +1,11 @@
 node_modules/
 .env
+.venv/
+__pycache__/
+*.log
 uploads/
 .DS_Store
 Thumbs.db
+out.txt
+py_diff.txt
+crime/

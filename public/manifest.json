@@ -1,0 +1,43 @@
+{
+  "name": "Crime Shield - AI Detection & Safety",
+  "short_name": "CrimeShield",
+  "description": "Next-generation AI crime detection, real-time hotspot mapping, SOS emergency alerts, and community intelligence network.",
+  "start_url": "/hotspot_report.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "categories": ["security", "utilities", "government"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Emergency SOS",
+      "short_name": "SOS",
+      "description": "Trigger instant emergency SOS alert with live GPS coordinates",
+      "url": "/hotspot_report.html#sos",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Hotspot Map",
+      "short_name": "Map",
+      "description": "View live crime hotspot heatmap and safety zones",
+      "url": "/hotspot_report.html#mapping",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Report Incident",
+      "short_name": "Report",
+      "description": "Submit a quick anonymous crime or safety complaint",
+      "url": "/hotspot_report.html#reporting",
+      "icons": [{ "src": "/logo.png", "sizes": "192x192" }]
+    }
+  ]
+}

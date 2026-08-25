@@ -1,9 +1,21 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
     <title>Crime Command Center</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b1220">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CrimeShield">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="hotspot_report.css">
     <!-- Leaflet Map CSS and JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -88,10 +100,26 @@
             <p>Advanced predictive algorithms and real-time community reporting combined into a single, unified dashboard to keep your neighborhoods safe.</p>
             <div class="hero-buttons">
                 <button class="btn-primary btn-large" id="btnHeroRegister">Get Started Free</button>
+                <button class="btn-outline btn-large" id="btnLandingInstall" style="display:none;"><i class="fas fa-download"></i> Install Mobile App</button>
             </div>
         </div>
     </div>
     <div class="container" style="display:none;">
+        <!-- Mobile PWA Installation Banner -->
+        <div class="pwa-install-banner" id="pwaInstallBanner" style="display:none;">
+            <div class="pwa-banner-content">
+                <img src="logo.png" alt="Logo" class="pwa-banner-icon">
+                <div class="pwa-banner-text">
+                    <strong>Install Crime Shield Mobile App</strong>
+                    <span>Add to home screen for offline access & instant SOS</span>
+                </div>
+            </div>
+            <div class="pwa-banner-actions">
+                <button class="btn btn-main" id="btnPwaInstall">Install</button>
+                <button class="pwa-btn-dismiss" id="btnPwaDismiss">&times;</button>
+            </div>
+        </div>
+
         <section class="hero">
             <div>
                 <h1 id="titleText">AI Crime Detection System</h1>
@@ -463,8 +491,41 @@
         </section>
         </main>
         </div>
+
+        <!-- Mobile Bottom Navigation Bar -->
+        <nav class="mobile-bottom-nav" id="mobileBottomNav">
+            <button class="mobile-nav-item active" data-mob-tab="mapping" onclick="switchMobileTab('mapping')">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>Hotspots</span>
+            </button>
+            <button class="mobile-nav-item" data-mob-tab="reporting" onclick="switchMobileTab('reporting')">
+                <i class="fas fa-file-signature"></i>
+                <span>Report</span>
+            </button>
+            <button class="mobile-nav-item mobile-sos-tab" onclick="triggerSosFromMobile()" title="Emergency SOS">
+                <div class="mobile-sos-circle">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <span>SOS</span>
+            </button>
+            <button class="mobile-nav-item" data-mob-tab="alerts" onclick="switchMobileTab('alerts')">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </button>
+            <button class="mobile-nav-item" data-mob-tab="stats" onclick="switchMobileTab('stats')">
+                <i class="fas fa-chart-bar"></i>
+                <span>Stats</span>
+            </button>
+        </nav>
+
+        <!-- Floating Quick SOS button for mobile screens -->
+        <button class="mobile-floating-sos" id="floatingSosBtn" onclick="triggerSosFromMobile()" title="Trigger Instant Emergency SOS">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>SOS</span>
+        </button>
     </div>
 
+    <script src="config.js"></script>
     <script>
         localStorage.removeItem('crimeApiBase');
         const report = {"generated_at": "2026-08-21T05:48:53", "total_crime_articles": 16, "state_filter": "", "keywords": ["assault", "attack", "burglary", "crime", "homicide", "kidnap", "murder", "rape", "robbery", "shooting", "theft"], "top_hotspots": [{"rank": 1, "state": "Maharashtra", "district": "Mumbai", "mentions": 16, "crime_types": ["cybercrime", "rape", "theft"], "latitude": 19.076, "longitude": 72.8777, "maps_url": "https://www.google.com/maps/search/?api=1&query=Mumbai%2C+Maharashtra%2C+India"}, {"rank": 2, "state": "Delhi", "district": "New Delhi", "mentions": 12, "crime_types": ["assault", "robbery"], "latitude": 28.6139, "longitude": 77.209, "maps_url": "https://www.google.com/maps/search/?api=1&query=New+Delhi%2C+Delhi%2C+India"}, {"rank": 3, "state": "Karnataka", "district": "Bengaluru", "mentions": 10, "crime_types": ["cybercrime", "fraud"], "latitude": 12.9716, "longitude": 77.5946, "maps_url": "https://www.google.com/maps/search/?api=1&query=Bengaluru%2C+Karnataka%2C+India"}, {"rank": 4, "state": "Tamil Nadu", "district": "Chennai", "mentions": 8, "crime_types": ["assault", "theft"], "latitude": 13.0827, "longitude": 80.2707, "maps_url": "https://www.google.com/maps/search/?api=1&query=Chennai%2C+Tamil+Nadu%2C+India"}, {"rank": 5, "state": "Uttar Pradesh", "district": "Lucknow", "mentions": 2, "crime_types": ["murder", "shooting"], "latitude": 26.8381, "longitude": 80.9346001, "maps_url": "https://www.google.com/maps/search/?api=1&query=Lucknow%2C+Uttar+Pradesh%2C+India"}, {"rank": 6, "state": "Bihar", "district": "Arwal", "mentions": 2, "crime_types": ["assault"], "latitude": 25.1812832, "longitude": 84.6596648, "maps_url": "https://www.google.com/maps/search/?api=1&query=Arwal%2C+Bihar%2C+India"}, {"rank": 7, "state": "Andhra Pradesh", "district": "Visakhapatnam", "mentions": 1, "crime_types": ["assault"], "latitude": 17.6935526, "longitude": 83.2921297, "maps_url": "https://www.google.com/maps/search/?api=1&query=Visakhapatnam%2C+Andhra+Pradesh%2C+India"}], "top_hotspot_police_info": "Police Station: Khar Police Station | Address: Mumbai | Phone: N/A | Coordinates: 19.064037, 72.8371137", "top_hotspot_center": {"district": "Mumbai", "state": "Maharashtra", "latitude": 19.076, "longitude": 72.8777, "maps_url": "https://www.google.com/maps/search/?api=1&query=19.076,72.8777"}, "nearby_police_stations": [{"name": "Khar Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 19.064037, "longitude": 72.8371137, "maps_url": "https://www.google.com/maps/search/?api=1&query=19.064037,72.8371137"}, {"name": "Lokmanya Tilak Road Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9453708, "longitude": 72.8303315, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9453708,72.8303315"}, {"name": "Null Bazaar Police Chowkie", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9570075, "longitude": 72.8290329, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9570075,72.8290329"}, {"name": "Pydhoni Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9541719, "longitude": 72.832021, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9541719,72.832021"}, {"name": "Dongri Police Station", "address": "Mumbai", "phone": "", "website": "", "email": "", "latitude": 18.9621396, "longitude": 72.8390488, "maps_url": "https://www.google.com/maps/search/?api=1&query=18.9621396,72.8390488"}], "alerts": ["High crime alert: Mumbai, Maharashtra has 16 mentions."], "category_breakdown": {"assault": 6, "rape": 4, "attack": 2, "murder": 2, "shooting": 1, "crime": 1}, "incidents": [{"id": "INC-1-MUMBAI", "district": "Mumbai", "state": "Maharashtra", "crime_type": "cybercrime", "severity": "High", "time": "2026-08-21T03:48", "latitude": 19.076, "longitude": 72.8777}, {"id": "INC-2-NEWDELHI", "district": "New Delhi", "state": "Delhi", "crime_type": "assault", "severity": "High", "time": "2026-08-21T01:48", "latitude": 28.6139, "longitude": 77.209}, {"id": "INC-3-BENGALURU", "district": "Bengaluru", "state": "Karnataka", "crime_type": "cybercrime", "severity": "High", "time": "2026-08-20T23:48", "latitude": 12.9716, "longitude": 77.5946}, {"id": "INC-4-CHENNAI", "district": "Chennai", "state": "Tamil Nadu", "crime_type": "assault", "severity": "High", "time": "2026-08-20T21:48", "latitude": 13.0827, "longitude": 80.2707}, {"id": "INC-5-LUCKNOW", "district": "Lucknow", "state": "Uttar Pradesh", "crime_type": "murder", "severity": "Medium", "time": "2026-08-20T19:48", "latitude": 26.8381, "longitude": 80.9346001}, {"id": "INC-6-ARWAL", "district": "Arwal", "state": "Bihar", "crime_type": "assault", "severity": "Medium", "time": "2026-08-20T17:48", "latitude": 25.1812832, "longitude": 84.6596648}, {"id": "INC-7-VISAKHAPATNAM", "district": "Visakhapatnam", "state": "Andhra Pradesh", "crime_type": "assault", "severity": "Low", "time": "2026-08-20T15:48", "latitude": 17.6935526, "longitude": 83.2921297}], "safety_tips": [{"title": "Cyber Safety", "content": "Never share OTPs, verify payment links, and enable 2FA on banking apps."}, {"title": "Home Security", "content": "Install door cameras, use motion lights, and keep emergency contacts visible."}, {"title": "Fraud Awareness", "content": "Do not trust urgent reward/loan calls; verify via official helplines first."}, {"title": "Women & Child Safety", "content": "Share live location with trusted contacts when travelling late hours."}], "emergency_contacts": [{"service": "Police Control Room", "phone": "112", "email": "controlroom@citypolice.gov"}, {"service": "Ambulance", "phone": "108", "email": ""}, {"service": "Fire", "phone": "101", "email": ""}, {"service": "Women Helpline", "phone": "1091", "email": ""}, {"service": "Cybercrime Helpline", "phone": "1930", "email": ""}], "portal": {"demo_pin": "4321", "control_room_number": "112", "control_room_email": "controlroom@citypolice.gov"}, "cyber_resources": {"citizen_steps": ["Immediately call 1930 for financial fraud freeze request.", "Report at cybercrime.gov.in with transaction IDs and screenshots.", "Do not delete chats, emails, or SMS evidence.", "Change passwords and enable 2-factor authentication on all accounts.", "Inform your bank and block compromised cards/wallets right away."], "police_playbook": ["Preserve chain of custody for digital evidence and device seizure logs.", "Correlate complaints with UPI IDs, mule accounts, and IP intelligence.", "Trigger rapid takedown workflow for phishing domains and fake apps.", "Issue legal preservation notices to platforms and ISPs.", "Escalate cross-state/cross-border cases to cyber coordination units."], "fraud_signals": ["Remote screen-share app installation requests.", "Urgent KYC update links from unknown senders.", "Payment request from fake customer-care/social media handles.", "Unexpected OTP/approval popups while on calls.", "Promises of instant loan/refund requiring advance fees."], "evidence_checklist": ["Transaction reference number / UTR", "Phone numbers, email IDs, social handles", "Wallet ID / UPI ID / account details", "Screenshots, call recordings, chat exports", "Device logs and approximate incident timeline"]}};
@@ -1501,6 +1562,81 @@
 
         renderAudit();
         setTimeout(initMainMap, 300);
+
+        // ==========================================
+        // MOBILE & PWA APP INTEGRATIONS
+        // ==========================================
+
+        // Mobile Bottom Tab Switching
+        function switchMobileTab(tabId) {
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                if (item.getAttribute('data-mob-tab') === tabId) {
+                    item.classList.add('active');
+                } else if (!item.classList.contains('mobile-sos-tab')) {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Trigger click on corresponding desktop tab
+            const targetTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+            if (targetTab) {
+                targetTab.click();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Trigger SOS from Mobile Bar / Floating Button
+        function triggerSosFromMobile() {
+            const sosBtn = document.getElementById('sosBtn');
+            if (sosBtn) {
+                sosBtn.click();
+            } else {
+                alert('Triggering Emergency SOS...');
+            }
+        }
+
+        // Service Worker Registration for Offline & Mobile PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
+            });
+        }
+
+        // PWA 1-Click Installation Prompt Handler
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show installation buttons / banners
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.style.display = 'flex';
+            
+            const landingInstallBtn = document.getElementById('btnLandingInstall');
+            if (landingInstallBtn) landingInstallBtn.style.display = 'inline-flex';
+        });
+
+        const handlePwaInstall = async () => {
+            if (!deferredPrompt) {
+                alert('To install on iOS/Safari: tap the Share icon and select "Add to Home Screen". On Chrome/Android: tap the browser menu (⋮) and choose "Install App" or "Add to Home screen".');
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`[PWA] Install prompt outcome: ${outcome}`);
+            deferredPrompt = null;
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.style.display = 'none';
+        };
+
+        document.getElementById('btnPwaInstall')?.addEventListener('click', handlePwaInstall);
+        document.getElementById('btnLandingInstall')?.addEventListener('click', handlePwaInstall);
+        document.getElementById('btnPwaDismiss')?.addEventListener('click', () => {
+            const banner = document.getElementById('pwaInstallBanner');
+            if (banner) banner.style.display = 'none';
+        });
     </script>
 </body>
 </html>
