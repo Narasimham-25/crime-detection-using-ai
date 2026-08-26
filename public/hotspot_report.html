@@ -212,16 +212,18 @@
             <div class="grid two">
                 <div class="card">
                     <h3>Interactive Hotspot Table</h3>
-                    <table>
-                        <thead><tr><th>#</th><th>District</th><th>State</th><th>Mentions</th><th>Crime Types</th><th>Map</th></tr></thead>
-                        <tbody><tr><td>1</td><td>Mumbai</td><td>Maharashtra</td><td>16</td><td>cybercrime, rape, theft</td><td><a href="https://www.google.com/maps/search/?api=1&query=Mumbai%2C+Maharashtra%2C+India" target="_blank">Open Map</a></td></tr>
+                    <div class="table-scroll">
+                        <table>
+                            <thead><tr><th>#</th><th>District</th><th>State</th><th>Mentions</th><th>Crime Types</th><th>Map</th></tr></thead>
+                            <tbody><tr><td>1</td><td>Mumbai</td><td>Maharashtra</td><td>16</td><td>cybercrime, rape, theft</td><td><a href="https://www.google.com/maps/search/?api=1&query=Mumbai%2C+Maharashtra%2C+India" target="_blank">Open Map</a></td></tr>
 <tr><td>2</td><td>New Delhi</td><td>Delhi</td><td>12</td><td>assault, robbery</td><td><a href="https://www.google.com/maps/search/?api=1&query=New+Delhi%2C+Delhi%2C+India" target="_blank">Open Map</a></td></tr>
 <tr><td>3</td><td>Bengaluru</td><td>Karnataka</td><td>10</td><td>cybercrime, fraud</td><td><a href="https://www.google.com/maps/search/?api=1&query=Bengaluru%2C+Karnataka%2C+India" target="_blank">Open Map</a></td></tr>
 <tr><td>4</td><td>Chennai</td><td>Tamil Nadu</td><td>8</td><td>assault, theft</td><td><a href="https://www.google.com/maps/search/?api=1&query=Chennai%2C+Tamil+Nadu%2C+India" target="_blank">Open Map</a></td></tr>
 <tr><td>5</td><td>Lucknow</td><td>Uttar Pradesh</td><td>2</td><td>murder, shooting</td><td><a href="https://www.google.com/maps/search/?api=1&query=Lucknow%2C+Uttar+Pradesh%2C+India" target="_blank">Open Map</a></td></tr>
 <tr><td>6</td><td>Arwal</td><td>Bihar</td><td>2</td><td>assault</td><td><a href="https://www.google.com/maps/search/?api=1&query=Arwal%2C+Bihar%2C+India" target="_blank">Open Map</a></td></tr>
 <tr><td>7</td><td>Visakhapatnam</td><td>Andhra Pradesh</td><td>1</td><td>assault</td><td><a href="https://www.google.com/maps/search/?api=1&query=Visakhapatnam%2C+Andhra+Pradesh%2C+India" target="_blank">Open Map</a></td></tr></tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
                 <div class="card">
                     <h3>Interactive Hotspot Map</h3>
@@ -238,10 +240,12 @@
                         <input id="quickSearchInput" placeholder="Search complaints/cases/watch/cyber/cctv" />
                         <button id="quickSearchBtn" type="button">Search</button>
                     </div>
-                    <table>
-                        <thead><tr><th>Source</th><th>Title</th><th>District/Area</th><th>Status</th><th>Time</th></tr></thead>
-                        <tbody id="quickSearchBody"><tr><td colspan="5" class="muted">Run a search to see matching records.</td></tr></tbody>
-                    </table>
+                    <div class="table-scroll">
+                        <table>
+                            <thead><tr><th>Source</th><th>Title</th><th>District/Area</th><th>Status</th><th>Time</th></tr></thead>
+                            <tbody id="quickSearchBody"><tr><td colspan="5" class="muted">Run a search to see matching records.</td></tr></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -296,10 +300,12 @@
                 </div>
                 <div class="card" id="cardSosBoard" style="border: 2px solid #ef4444; background: rgba(239,68,68,0.05);">
                     <h3 style="color: #ef4444;">🚨 Active SOS Emergency Alerts</h3>
-                    <table style="margin-top: 10px;">
-                        <thead><tr><th>ID</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
-                        <tbody id="sosBody"><tr><td colspan="4" class="muted">Fetching SOS alerts...</td></tr></tbody>
-                    </table>
+                    <div class="table-scroll sos-scroll">
+                        <table style="margin-top: 10px;">
+                            <thead><tr><th>ID</th><th>Time</th><th>Location</th><th>Status</th></tr></thead>
+                            <tbody id="sosBody"><tr><td colspan="4" class="muted">Fetching SOS alerts...</td></tr></tbody>
+                        </table>
+                    </div>
                     <div style="margin-top:10px; text-align:right;">
                         <button id="refreshSosBtn" class="btn" style="background:#ef4444; color:white; border:none;">Refresh Alerts</button>
                     </div>
@@ -375,9 +381,11 @@
                             <div class="full"><label>Notes</label><textarea id="caseNotes"></textarea></div>
                             <div class="full"><button class="btn-main" type="submit">Save Case</button></div>
                         </form>
-                        <table><thead><tr><th>Case</th><th>Officer</th><th>Status</th><th>Priority</th><th>Updated</th></tr></thead><tbody id="casesBody"></tbody></table>
+                        <div class="table-scroll">
+                            <table><thead><tr><th>Case</th><th>Officer</th><th>Status</th><th>Priority</th><th>Updated</th></tr></thead><tbody id="casesBody"></tbody></table>
+                        </div>
                         <h4 style="margin-top:20px;">🚨 Reported Incidents (Citizen Complaints)</h4>
-                        <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px;">
+                        <div class="table-scroll" style="max-height: 250px;">
                             <table style="width:100%; font-size:12px;">
                                 <thead>
                                     <tr>
@@ -445,7 +453,9 @@
                 </div>
                 <div class="card">
                     <h3>Audit Logs</h3>
-                    <table><thead><tr><th>Action</th><th>Actor</th><th>Time</th></tr></thead><tbody id="auditBody"></tbody></table>
+                    <div class="table-scroll">
+                        <table><thead><tr><th>Action</th><th>Actor</th><th>Time</th></tr></thead><tbody id="auditBody"></tbody></table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -466,7 +476,7 @@
                     </div>
                     <div id="cardViewCyber" style="display:none; margin-top:20px;">
                         <h4 style="color:#ef4444;">🚨 Recent Cybercrime Reports (Analyst Dashboard)</h4>
-                        <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px;">
+                        <div class="table-scroll" style="max-height: 300px;">
                             <table style="font-size:12px; width: 100%; border-collapse: collapse;">
                                 <thead style="position: sticky; top: 0; background: #111827; z-index: 1;">
                                     <tr><th>Title</th><th>Contact</th><th>AI Category</th><th>AI Confidence</th><th>AI Severity</th><th>Priority</th><th>Evidence</th><th>Details</th><th>Time</th></tr>
@@ -481,11 +491,13 @@
                     <div class="controls"><input id="cctvUrl" placeholder="Paste CCTV feed URL" /><button id="addCctv">Add Feed</button></div>
                     <ul id="cctvList"></ul>
                     <h4>Emergency Contact Directory</h4>
-                    <table><thead><tr><th>Service</th><th>Phone</th><th>Email</th></tr></thead><tbody><tr><td>Police Control Room</td><td><a href="tel:112">112</a></td><td>controlroom@citypolice.gov</td></tr>
+                    <div class="table-scroll">
+                        <table><thead><tr><th>Service</th><th>Phone</th><th>Email</th></tr></thead><tbody><tr><td>Police Control Room</td><td><a href="tel:112">112</a></td><td>controlroom@citypolice.gov</td></tr>
 <tr><td>Ambulance</td><td><a href="tel:108">108</a></td><td></td></tr>
 <tr><td>Fire</td><td><a href="tel:101">101</a></td><td></td></tr>
 <tr><td>Women Helpline</td><td><a href="tel:1091">1091</a></td><td></td></tr>
 <tr><td>Cybercrime Helpline</td><td><a href="tel:1930">1930</a></td><td></td></tr></tbody></table>
+                    </div>
                 </div>
             </div>
         </section>
