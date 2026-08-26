@@ -195,15 +195,15 @@
         <div class="content-layout">
         <aside class="sidebar">
             <nav class="tabs" id="tabs">
-                <button class="tab active" data-tab="mapping">Crime Hotspot Mapping</button>
-                <button class="tab" data-tab="reporting">Incident Reporting</button>
-                <button class="tab" data-tab="alerts">Real-Time Alerts</button>
-                <button class="tab" data-tab="stats">Statistics Dashboard</button>
-                <button class="tab" data-tab="law">Law Enforcement Portal</button>
-                <button class="tab" data-tab="community">Community Engagement</button>
-                <button class="tab" data-tab="security">Security & Privacy</button>
-                <button class="tab" data-tab="advanced">Advanced Features</button>
-                <button class="tab" data-tab="accessibility">Accessibility</button>
+                <button class="tab active" data-tab="mapping"><i class="fas fa-map-marked-alt"></i> Hotspots</button>
+                <button class="tab" data-tab="reporting"><i class="fas fa-file-signature"></i> Reporting</button>
+                <button class="tab" data-tab="alerts"><i class="fas fa-bell"></i> Alerts</button>
+                <button class="tab" data-tab="stats"><i class="fas fa-chart-bar"></i> Statistics</button>
+                <button class="tab" data-tab="law"><i class="fas fa-user-shield"></i> Police Portal</button>
+                <button class="tab" data-tab="community"><i class="fas fa-users"></i> Community</button>
+                <button class="tab" data-tab="security"><i class="fas fa-video"></i> Security & CCTV</button>
+                <button class="tab" data-tab="advanced"><i class="fas fa-brain"></i> Advanced Features</button>
+                <button class="tab" data-tab="accessibility"><i class="fas fa-universal-access"></i> Accessibility</button>
             </nav>
         </aside>
 
@@ -614,6 +614,8 @@
                 setTimeout(autoDetectFormLocation, 200);
             } else if (t.dataset.tab === 'stats' && typeof drawChart === 'function') {
                 setTimeout(drawChart, 200);
+            } else if (t.dataset.tab === 'advanced' && typeof loadCyberReports === 'function') {
+                setTimeout(loadCyberReports, 200);
             }
         }));
 
@@ -1504,11 +1506,11 @@
                 const cardReqCyb = document.getElementById('cardReportCyber');
                 if (cardReqCyb) cardReqCyb.style.display = (role === 'citizen') ? 'block' : 'none';
                 
-                // Show Read-Only Logs for Analysts and Officers
+                // Show Read-Only Logs for Analysts, Officers and Admins
                 const cardViewCyb = document.getElementById('cardViewCyber');
                  if (cardViewCyb) {
-                      cardViewCyb.style.display = (role === 'analyst' || role === 'admin') ? 'block' : 'none';
-                      if (role === 'analyst' || role === 'admin') loadCyberReports();
+                      cardViewCyb.style.display = (role === 'analyst' || role === 'officer' || role === 'admin') ? 'block' : 'none';
+                      if (role === 'analyst' || role === 'officer' || role === 'admin') loadCyberReports();
                  }
                 
                 // Hide SOS Board from Citizens
