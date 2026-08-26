@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Crime Command Center</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0b1220">
@@ -1406,9 +1406,9 @@
                 document.getElementById('lblUserName').textContent = user;
                 
                 if (container) container.style.display = 'block';
-                if (kpiSection) kpiSection.style.display = 'grid';
-                if (mainContent) mainContent.style.display = 'flex';
-                if (heroSection) heroSection.style.display = 'flex';
+                if (kpiSection) kpiSection.style.display = '';
+                if (mainContent) mainContent.style.display = '';
+                if (heroSection) heroSection.style.display = '';
                 if (landingPage) landingPage.style.display = 'none';
                 document.getElementById('authModal').style.display = 'none';
                 
@@ -1428,7 +1428,7 @@
                 
                 document.querySelectorAll('.tab').forEach(t => {
                     if (allowedTabs.includes(t.dataset.tab)) {
-                        t.style.display = 'inline-flex'; // Assuming flex or inline-block, inline-flex matches standard button tab styling
+                        t.style.display = '';
                     } else {
                         t.style.display = 'none';
                     }
@@ -1452,7 +1452,7 @@
                 // Remove SOS feature for Analyst and Officer
                 const sosBtn = document.getElementById('sosBtn');
                 if (sosBtn) {
-                    sosBtn.style.display = (role === 'citizen') ? 'inline-block' : 'none';
+                    sosBtn.style.display = (role === 'citizen') ? '' : 'none';
                 }
                 
                 // Hide Crime Submission Forms from Analysts and Officers
@@ -1485,13 +1485,6 @@
                 if (cardCtrlRoom) {
                     const hideControlRoom = (role === 'citizen' || role === 'analyst');
                     cardCtrlRoom.style.display = hideControlRoom ? 'none' : 'block';
-                    if (cardReqCom) {
-                        if (hideControlRoom) {
-                            cardReqCom.parentElement.style.gridTemplateColumns = '1fr';
-                        } else {
-                            cardReqCom.parentElement.style.gridTemplateColumns = '1.25fr 1fr';
-                        }
-                    }
                 }
                 
                 loadComplaints();
