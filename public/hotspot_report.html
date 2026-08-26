@@ -15,7 +15,7 @@
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- External CSS -->
-    <link rel="stylesheet" href="hotspot_report.css">
+    <link rel="stylesheet" href="hotspot_report.css?v=3.0">
     <!-- Leaflet Map CSS and JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1708,7 +1708,10 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .then(reg => {
+                        console.log('[PWA] Service Worker registered:', reg.scope);
+                        reg.update();
+                    })
                     .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
             });
         }

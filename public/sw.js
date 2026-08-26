@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crime-shield-v1';
+const CACHE_NAME = 'crime-shield-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -24,7 +24,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate Event - Clean up old caches
+// Activate Event - Clean up ALL old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -41,45 +41,36 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch Event - Dynamic routing strategy
+// Fetch Event - Network-First Strategy (Always fetch fresh, fallback to cache if offline)
 self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(event.request.url);
 
-  // Skip non-GET requests and API calls from static cache (use network for dynamic data)
+  // Skip non-GET requests and API calls
   if (event.request.method !== 'GET' || requestUrl.pathname.startsWith('/api/')) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch fresh copy in background (Stale-While-Revalidate)
-        fetch(event.request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-            }
-          })
-          .catch(() => {});
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      }).catch(() => {
-        // Fallback for HTML navigation when completely offline
-        if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
-          return caches.match('/hotspot_report.html') || caches.match('/index.html');
-        }
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
+            return caches.match('/hotspot_report.html') || caches.match('/index.html');
+          }
+        });
+      })
   );
 });
 
