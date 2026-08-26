@@ -118,6 +118,19 @@
                 <button class="btn btn-main" id="btnPwaInstall">Install</button>
                 <button class="pwa-btn-dismiss" id="btnPwaDismiss">&times;</button>
             </div>
+        <!-- Officer & Analyst Emergency SOS Banner -->
+        <div id="officerSosAlertBanner" style="display:none; background: linear-gradient(135deg, #ef4444, #991b1b); color:white; padding:14px 18px; border-radius:12px; margin-bottom:14px; box-shadow: 0 0 25px rgba(239,68,68,0.8); border: 2px solid #fecaca; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:26px; animation: pulse 0.8s infinite;">🚨</span>
+                <div>
+                    <strong style="font-size:16px; display:block; letter-spacing:0.5px;">CRITICAL EMERGENCY SOS ACTIVE!</strong>
+                    <span id="officerSosLocationText" style="font-size:13px; opacity:0.95;">Submitter Location: Detecting coordinates...</span>
+                </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <a id="officerSosMapLink" href="#" target="_blank" class="btn" style="background:#fff; color:#991b1b; font-weight:800; border:none; text-decoration:none; display:inline-flex; align-items:center; gap:6px;"><i class="fas fa-map-marker-alt"></i> Navigate to Victim</a>
+                <button id="officerSosMuteBtn" class="btn" style="background:rgba(0,0,0,0.35); color:#fff; border:1px solid rgba(255,255,255,0.4); font-weight:600;"><i class="fas fa-volume-mute"></i> Silence Alarm</button>
+            </div>
         </div>
 
         <section class="hero">
@@ -261,7 +274,7 @@
                     <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px;">
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead style="position: sticky; top: 0; background: #111827; z-index: 1;">
-                                <tr><th>ID</th><th>Category</th><th>District</th><th>AI Match</th><th>Reported by</th><th>Time</th></tr>
+                                <tr><th>ID</th><th>Category</th><th>District</th><th>Submitter Location / GPS</th><th>AI Match</th><th>Reported by</th><th>Time</th></tr>
                             </thead>
                             <tbody id="complaintsBody"></tbody>
                         </table>
@@ -512,11 +525,47 @@
                 <i class="fas fa-bell"></i>
                 <span>Alerts</span>
             </button>
-            <button class="mobile-nav-item" data-mob-tab="stats" onclick="switchMobileTab('stats')">
-                <i class="fas fa-chart-bar"></i>
-                <span>Stats</span>
+            <button class="mobile-nav-item" id="btnMobileMore" onclick="toggleMobileMoreMenu()">
+                <i class="fas fa-th-large"></i>
+                <span>More</span>
             </button>
         </nav>
+
+        <!-- Mobile More Features Drawer -->
+        <div id="mobileMoreDrawer" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:10000; backdrop-filter:blur(8px); align-items:flex-end;">
+            <div style="background:var(--panel2); width:100%; border-top-left-radius:24px; border-top-right-radius:24px; padding:20px; border-top:1px solid var(--line); max-height:80vh; overflow-y:auto;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 style="margin:0; font-size:18px;"><i class="fas fa-shield-alt" style="color:#38bdf8;"></i> All Mobile Features</h3>
+                    <button onclick="toggleMobileMoreMenu()" style="background:transparent; border:none; font-size:24px; color:var(--text); cursor:pointer;">&times;</button>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;">
+                    <button class="btn" style="text-align:left; padding:12px; display:flex; align-items:center; gap:10px;" onclick="openFeatureFromDrawer('law')">
+                        <i class="fas fa-user-shield" style="color:#60a5fa; font-size:18px;"></i>
+                        <div><strong style="display:block; font-size:13px;">Police Portal</strong><span style="font-size:11px; opacity:0.7;">Case Management</span></div>
+                    </button>
+                    <button class="btn" style="text-align:left; padding:12px; display:flex; align-items:center; gap:10px;" onclick="openFeatureFromDrawer('community')">
+                        <i class="fas fa-users" style="color:#34d399; font-size:18px;"></i>
+                        <div><strong style="display:block; font-size:13px;">Community Watch</strong><span style="font-size:11px; opacity:0.7;">Neighborhood Groups</span></div>
+                    </button>
+                    <button class="btn" style="text-align:left; padding:12px; display:flex; align-items:center; gap:10px;" onclick="openFeatureFromDrawer('security')">
+                        <i class="fas fa-video" style="color:#fbbf24; font-size:18px;"></i>
+                        <div><strong style="display:block; font-size:13px;">CCTV Feeds</strong><span style="font-size:11px; opacity:0.7;">Camera Surveillance</span></div>
+                    </button>
+                    <button class="btn" style="text-align:left; padding:12px; display:flex; align-items:center; gap:10px;" onclick="openFeatureFromDrawer('advanced')">
+                        <i class="fas fa-brain" style="color:#a78bfa; font-size:18px;"></i>
+                        <div><strong style="display:block; font-size:13px;">AI Forecast & Cyber</strong><span style="font-size:11px; opacity:0.7;">Predictive Analytics</span></div>
+                    </button>
+                    <button class="btn" style="text-align:left; padding:12px; display:flex; align-items:center; gap:10px;" onclick="openFeatureFromDrawer('stats')">
+                        <i class="fas fa-chart-pie" style="color:#f472b6; font-size:18px;"></i>
+                        <div><strong style="display:block; font-size:13px;">Crime Statistics</strong><span style="font-size:11px; opacity:0.7;">Charts & Trends</span></div>
+                    </button>
+                    <button class="btn" style="text-align:left; padding:12px; display:flex; align-items:center; gap:10px;" onclick="openFeatureFromDrawer('accessibility')">
+                        <i class="fas fa-universal-access" style="color:#38bdf8; font-size:18px;"></i>
+                        <div><strong style="display:block; font-size:13px;">Voice & Language</strong><span style="font-size:11px; opacity:0.7;">Accessibility Settings</span></div>
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Floating Quick SOS button for mobile screens -->
         <button class="mobile-floating-sos" id="floatingSosBtn" onclick="triggerSosFromMobile()" title="Trigger Instant Emergency SOS">
@@ -697,8 +746,10 @@
                     const id = r._id || r.id;
                     if (id && !previousSosIds.has(id)) {
                         if (!isInitialLoad) {
-                            notifyUser(`🚨 EMERGENCY: New SOS Alert from ${r.location}!`);
-                            alert(`🚨 EMERGENCY: New SOS Alert from ${r.location}!`);
+                            notifyUser(`🚨 CRITICAL EMERGENCY SOS from: ${r.location}!`);
+                            // Play audible emergency alarm siren for Officer & Crime Data Analyst
+                            playEmergencySiren(5000);
+                            showOfficerSosAlert(r.location);
                         }
                         previousSosIds.add(id);
                     }
@@ -713,7 +764,7 @@
         }
         document.getElementById('refreshSosBtn')?.addEventListener('click', loadSos);
         loadSos();
-        setInterval(loadSos, 15000);
+        setInterval(loadSos, 10000);
         
         // Alert Polling for Officers & Analysts
         let lastAlertCheck = Date.now() - 5000;
@@ -939,16 +990,26 @@
             
             const complaintsBody = document.getElementById('complaintsBody');
             if (complaintsBody) {
-                complaintsBody.innerHTML = res.map(r => `
+                complaintsBody.innerHTML = res.map(r => {
+                    const lat = typeof r.latitude === 'number' ? r.latitude : parseFloat(r.latitude);
+                    const lon = typeof r.longitude === 'number' ? r.longitude : parseFloat(r.longitude);
+                    const hasCoords = !isNaN(lat) && !isNaN(lon) && (lat !== 0 || lon !== 0);
+                    const locationDisplay = hasCoords
+                        ? `<a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" style="color:#38bdf8; text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:4px;"><i class="fas fa-map-marker-alt" style="color:#ef4444;"></i> ${lat.toFixed(4)}, ${lon.toFixed(4)} <span style="font-size:11px; opacity:0.8;">(Map)</span></a>`
+                        : `<span class="muted">${r.address || r.district || 'Location unshared'}</span>`;
+
+                    return `
                     <tr>
-                        <td>${r.complaint_id?.slice(-6) || r.id?.slice(-6) || r._id?.slice(-6) || ''}</td>
-                        <td>${r.crime_type || r.category || ''}</td>
-                        <td>${r.district || ''}</td>
-                        <td>${r.ai_severity || 'Low'}</td>
+                        <td><b>${r.complaint_id?.slice(-6) || r.id?.slice(-6) || r._id?.slice(-6) || ''}</b></td>
+                        <td><span class="badge badge-ok">${r.crime_type || r.category || 'Incident'}</span></td>
+                        <td>${r.district || 'Unknown'}</td>
+                        <td>${locationDisplay}</td>
+                        <td><span class="badge ${r.ai_severity === 'High' ? 'badge-danger' : 'badge-ok'}">${r.ai_severity || 'Medium'}</span></td>
                         <td>${r.anonymous ? 'Anonymous' : (r.user_name || r.reported_by || 'Citizen')}</td>
                         <td>${safeFormatDateTime(r.created_date || r.createdAt || r.time)}</td>
                     </tr>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             const officerBody = document.getElementById('officerComplaintsBody');
@@ -1564,15 +1625,126 @@
         setTimeout(initMainMap, 300);
 
         // ==========================================
+        // EMERGENCY SIREN ALERT (OFFICER & ANALYST)
+        // ==========================================
+        let sirenAudioCtx = null;
+        let sirenOscillator = null;
+        let sirenGain = null;
+        let sirenTimer = null;
+
+        function playEmergencySiren(durationMs = 5000) {
+            try {
+                stopEmergencySiren();
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                
+                sirenAudioCtx = new AudioContext();
+                if (sirenAudioCtx.state === 'suspended') {
+                    sirenAudioCtx.resume();
+                }
+
+                const ctx = sirenAudioCtx;
+                sirenOscillator = ctx.createOscillator();
+                sirenGain = ctx.createGain();
+
+                sirenOscillator.type = 'sawtooth';
+                const startTime = ctx.currentTime;
+                const endTime = startTime + (durationMs / 1000);
+
+                // Alternating high/low European/Police dual tone siren (650Hz to 1150Hz)
+                const wailDuration = 0.5;
+                for (let t = startTime; t < endTime; t += wailDuration) {
+                    sirenOscillator.frequency.setValueAtTime(650, t);
+                    sirenOscillator.frequency.exponentialRampToValueAtTime(1200, t + (wailDuration / 2));
+                    sirenOscillator.frequency.exponentialRampToValueAtTime(650, t + wailDuration);
+                }
+
+                sirenGain.gain.setValueAtTime(0.05, startTime);
+                sirenGain.gain.linearRampToValueAtTime(0.4, startTime + 0.1);
+                sirenGain.gain.setValueAtTime(0.4, endTime - 0.2);
+                sirenGain.gain.linearRampToValueAtTime(0.01, endTime);
+
+                sirenOscillator.connect(sirenGain);
+                sirenGain.connect(ctx.destination);
+
+                sirenOscillator.start(startTime);
+                sirenOscillator.stop(endTime);
+
+                sirenTimer = setTimeout(() => {
+                    stopEmergencySiren();
+                }, durationMs);
+
+                // Trigger device vibration
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([500, 200, 500, 200, 500, 200, 1000]);
+                }
+            } catch (err) {
+                console.warn('Siren audio error:', err);
+            }
+        }
+
+        function stopEmergencySiren() {
+            if (sirenTimer) {
+                clearTimeout(sirenTimer);
+                sirenTimer = null;
+            }
+            if (sirenOscillator) {
+                try { sirenOscillator.stop(); } catch(e){}
+                sirenOscillator = null;
+            }
+            if (sirenAudioCtx && sirenAudioCtx.state !== 'closed') {
+                try { sirenAudioCtx.close(); } catch(e){}
+                sirenAudioCtx = null;
+            }
+        }
+
+        function showOfficerSosAlert(locationStr) {
+            const banner = document.getElementById('officerSosAlertBanner');
+            if (banner) {
+                banner.style.display = 'flex';
+                document.getElementById('officerSosLocationText').textContent = `Submitter Location: ${locationStr || 'Live GPS Coordinates'}`;
+                
+                // Parse coordinates for Google Maps link if available
+                let mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationStr || 'Emergency Location')}`;
+                if (locationStr && locationStr.includes(',')) {
+                    const [lat, lon] = locationStr.split(',').map(s => s.trim());
+                    if (!isNaN(parseFloat(lat)) && !isNaN(parseFloat(lon))) {
+                        mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+                    }
+                }
+                document.getElementById('officerSosMapLink').href = mapUrl;
+            }
+        }
+
+        document.getElementById('officerSosMuteBtn')?.addEventListener('click', () => {
+            stopEmergencySiren();
+            const banner = document.getElementById('officerSosAlertBanner');
+            if (banner) banner.style.display = 'none';
+        });
+
+        // ==========================================
         // MOBILE & PWA APP INTEGRATIONS
         // ==========================================
+
+        // Mobile More Features Drawer Toggle
+        function toggleMobileMoreMenu() {
+            const drawer = document.getElementById('mobileMoreDrawer');
+            if (drawer) {
+                drawer.style.display = drawer.style.display === 'flex' ? 'none' : 'flex';
+            }
+        }
+
+        function openFeatureFromDrawer(tabId) {
+            toggleMobileMoreMenu();
+            switchMobileTab(tabId);
+        }
 
         // Mobile Bottom Tab Switching
         function switchMobileTab(tabId) {
             document.querySelectorAll('.mobile-nav-item').forEach(item => {
                 if (item.getAttribute('data-mob-tab') === tabId) {
                     item.classList.add('active');
-                } else if (!item.classList.contains('mobile-sos-tab')) {
+                } else if (!item.classList.contains('mobile-sos-tab') && item.id !== 'btnMobileMore') {
                     item.classList.remove('active');
                 }
             });
