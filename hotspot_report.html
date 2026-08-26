@@ -44,17 +44,17 @@
     </div>
     <div class="container" style="display:none;">
         <!-- Mobile PWA Installation Banner -->
-        <div class="pwa-install-banner" id="pwaInstallBanner" style="display:none;">
-            <div class="pwa-banner-content">
-                <img src="logo.png" alt="Logo" class="pwa-banner-icon">
-                <div class="pwa-banner-text">
-                    <strong>Install Crime Shield Mobile App</strong>
-                    <span>Add to home screen for offline access & instant SOS</span>
+        <div class="pwa-install-banner" id="pwaInstallBanner" style="display:none; align-items:center; justify-content:space-between; background:linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border:1px solid rgba(6, 182, 212, 0.4); border-radius:12px; padding:12px 16px; margin-bottom:16px; box-shadow:0 8px 24px rgba(0,0,0,0.4); backdrop-filter:blur(10px); width:100%;">
+            <div class="pwa-banner-content" style="display:flex; align-items:center; gap:12px;">
+                <img src="logo.png" alt="Logo" class="pwa-banner-icon" style="width:40px; height:40px; max-width:40px; max-height:40px; object-fit:contain; border-radius:8px; flex-shrink:0;">
+                <div class="pwa-banner-text" style="display:flex; flex-direction:column;">
+                    <strong style="font-size:14px; color:#f8fafc;">Install Crime Shield App</strong>
+                    <span style="font-size:12px; color:#94a3b8;">Add to home screen for offline access & instant SOS</span>
                 </div>
             </div>
-            <div class="pwa-banner-actions">
+            <div class="pwa-banner-actions" style="display:flex; align-items:center; gap:8px;">
                 <button class="btn btn-main" id="btnPwaInstall">Install</button>
-                <button class="pwa-btn-dismiss" id="btnPwaDismiss">&times;</button>
+                <button class="pwa-btn-dismiss" id="btnPwaDismiss" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer; padding:4px 8px;">&times;</button>
             </div>
         </div>
 
