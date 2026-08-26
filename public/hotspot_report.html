@@ -118,6 +118,8 @@
                 <button class="btn btn-main" id="btnPwaInstall">Install</button>
                 <button class="pwa-btn-dismiss" id="btnPwaDismiss">&times;</button>
             </div>
+        </div>
+
         <!-- Officer & Analyst Emergency SOS Banner -->
         <div id="officerSosAlertBanner" style="display:none; background: linear-gradient(135deg, #ef4444, #991b1b); color:white; padding:14px 18px; border-radius:12px; margin-bottom:14px; box-shadow: 0 0 25px rgba(239,68,68,0.8); border: 2px solid #fecaca; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
             <div style="display:flex; align-items:center; gap:12px;">
@@ -1457,8 +1459,8 @@
                 const role = localStorage.getItem('crimeRole') || 'citizen';
                 const tabGroups = {
                     'citizen': ['mapping', 'reporting', 'alerts', 'stats', 'community', 'security', 'advanced', 'accessibility'],
-                    'analyst': ['mapping', 'alerts', 'stats', 'security', 'advanced', 'accessibility'],
-                    'officer': ['mapping', 'reporting', 'alerts', 'stats', 'law', 'community', 'security', 'accessibility']
+                    'analyst': ['mapping', 'reporting', 'alerts', 'stats', 'law', 'community', 'security', 'advanced', 'accessibility'],
+                    'officer': ['mapping', 'reporting', 'alerts', 'stats', 'law', 'community', 'security', 'advanced', 'accessibility']
                 };
                 const allowedTabs = tabGroups[role] || tabGroups['citizen'];
                 
