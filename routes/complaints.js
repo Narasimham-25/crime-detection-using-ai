@@ -253,7 +253,11 @@ router.get("/", requireAuth, async (req, res) => {
             if (state) query.state = { $regex: state, $options: "i" };
             if (district) query.district = { $regex: district, $options: "i" };
             if (city) query.city = { $regex: city, $options: "i" };
-            if (status) query.status = status;
+            if (status) {
+                query.status = status;
+            } else {
+                query.status = { $nin: ["Solved", "Resolved", "Closed", "solved", "resolved", "closed"] };
+            }
 
             let physicalQuery = { ...query };
             if (crime_type) {
@@ -387,7 +391,15 @@ router.post("/update-status", requireAuth, async (req, res) => {
 
         if (!complaint) {
             complaint = await CyberComplaint.findOne({ complaint_id: id });
-            isCyber = true;
+            if (complaint) isCyber = true;
+        }
+
+        if (!complaint && id && /^[0-9a-fA-F]{24}$/.test(id)) {
+            complaint = await PhysicalComplaint.findById(id);
+            if (!complaint) {
+                complaint = await CyberComplaint.findById(id);
+                if (complaint) isCyber = true;
+            }
         }
 
         if (!complaint) {

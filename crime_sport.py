@@ -870,7 +870,27 @@ def write_outputs(output_json: Path, report_payload: dict) -> Path:
                             <div class=\"full\"><button class=\"btn-main\" type=\"submit\">Save Case</button></div>
                         </form>
                         <table><thead><tr><th>Case</th><th>Officer</th><th>Status</th><th>Priority</th><th>Updated</th></tr></thead><tbody id=\"casesBody\"></tbody></table>
-                    </div>
+                        <h4 style=\"margin-top:20px;\">🚨 Reported Incidents (Citizen Complaints)</h4>
+                        <div class=\"table-scroll\" style=\"max-height: 250px;\">
+                            <table style=\"width:100%; font-size:12px;\">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Category</th>
+                                        <th>District</th>
+                                        <th>Coordinates</th>
+                                        <th>AI Severity</th>
+                                        <th>Reported By</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id=\"officerComplaintsBody\">
+                                    <tr><td colspan=\"9\" class=\"muted\">No complaints loaded.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                 </div>
                 <div class=\"card\">
                     <h3>Police Database Integration (Adapter)</h3>
@@ -1230,8 +1250,51 @@ def write_outputs(output_json: Path, report_payload: dict) -> Path:
             const res = await getBackendJson('/complaints');
             if (!res || !Array.isArray(res)) return;
             liveComplaints = res;
-            document.getElementById('complaintsBody').innerHTML = res.map(r => `<tr><td>${{r.id?.slice(-6) || r._id?.slice(-6) || ''}}</td><td>${{r.category}}</td><td>${{r.district}}</td><td>${{r.ai_severity || 'Unknown'}}</td><td>${{r.anonymous ? 'Anonymous' : (r.user_name || 'Unknown')}}</td><td>${{new Date(r.created_date || r.createdAt || r.time || new Date()).toLocaleString()}}</td></tr>`).join('');
+            const complaintsBody = document.getElementById('complaintsBody');
+            if (complaintsBody) {{
+                complaintsBody.innerHTML = res.map(r => {{
+                    const isSolved = ['solved', 'resolved', 'closed'].includes(String(r.status || '').toLowerCase().trim());
+                    const statusBadge = isSolved
+                        ? '<span class=\"badge badge-ok\">Solved</span>'
+                        : `<span class=\"badge badge-warning\" style=\"font-size:11px;\">${{r.status || 'Active'}}</span>`;
+                    return `<tr><td>${{r.id?.slice(-6) || r._id?.slice(-6) || ''}}</td><td>${{r.category}}</td><td>${{r.district}}</td><td>${{r.ai_severity || 'Unknown'}}</td><td>${{r.anonymous ? 'Anonymous' : (r.user_name || 'Unknown')}}</td><td>${{new Date(r.created_date || r.createdAt || r.time || new Date()).toLocaleString()}}</td><td>${{statusBadge}}</td></tr>`;
+                }}).join('');
+            }}
+            const officerBody = document.getElementById('officerComplaintsBody');
+            if (officerBody) {{
+                const unresolvedComplaints = res.filter(r => {{
+                    const st = String(r.status || '').toLowerCase().trim();
+                    return st !== 'solved' && st !== 'resolved' && st !== 'closed';
+                }});
+                if (unresolvedComplaints.length === 0) {{
+                    officerBody.innerHTML = '<tr><td colspan=\"9\" class=\"muted\" style=\"text-align:center; padding:16px;\">No pending complaints. All reported incidents are solved.</td></tr>';
+                }} else {{
+                    officerBody.innerHTML = unresolvedComplaints.map(r => {{
+                        const rawId = r.complaint_id || r.id || r._id || '';
+                        const displayId = r.complaint_id?.slice(-6) || r.id?.slice(-6) || r._id?.slice(-6) || '';
+                        const curStatus = r.status || 'New';
+                        return `<tr><td><b>${{displayId}}</b></td><td>${{r.crime_type || r.category || ''}}</td><td>${{r.district || ''}}</td><td><code>${{r.latitude ? r.latitude.toFixed(4) + ', ' + r.longitude.toFixed(4) : 'N/A'}}</code></td><td><span class=\"badge badge-danger\">${{r.ai_severity || 'Low'}}</span></td><td>${{r.anonymous ? 'Anonymous' : (r.user_name || r.reported_by || 'Citizen')}}</td><td><small>${{new Date(r.created_date || r.createdAt || r.time || new Date()).toLocaleString()}}</small></td><td><span class=\"badge badge-warning\" style=\"font-size:11px;\">${{curStatus}}</span></td><td><button class=\"btn\" style=\"background:#10b981; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer;\" onclick=\"markComplaintSolved('${{rawId}}')\">✅ Mark Solved</button></td></tr>`;
+                    }}).join('');
+                }}
+            }}
             renderHeatmap();
+        }}
+
+        async function markComplaintSolved(complaintId) {{
+            if (!complaintId) return;
+            if (!confirm(`Mark complaint ${{complaintId}} as Solved and remove it from the Law Enforcement Portal?`)) return;
+            const res = await postBackendJson('/complaints/update-status', {{
+                id: complaintId,
+                status: 'Solved',
+                remarks: 'Marked as Solved by Officer'
+            }});
+            if (res && res.error) {{
+                alert('Error updating complaint status: ' + res.error);
+                return;
+            }}
+            logAudit(`Marked complaint ${{complaintId}} as Solved`, localStorage.getItem('crimeUser') || 'Officer');
+            alert(`Complaint ${{complaintId}} successfully marked as Solved and removed from Law Enforcement Portal.`);
+            loadComplaints();
         }}
         document.getElementById('complaintForm').addEventListener('submit', async (e) => {{
             e.preventDefault();
@@ -1530,10 +1593,18 @@ def write_outputs(output_json: Path, report_payload: dict) -> Path:
                     if (portalArea) portalArea.style.display = 'block';
                 }}
                 
-                // Remove SOS feature for Analyst and Officer
+                // Remove SOS button feature for Law Enforcement Officer and Crime Data Analyst (both Web and Mobile)
+                const isOfficerOrAnalyst = (role === 'officer' || role === 'analyst');
                 const sosBtn = document.getElementById('sosBtn');
                 if (sosBtn) {{
-                    sosBtn.style.display = (role === 'citizen') ? 'inline-block' : 'none';
+                    sosBtn.style.display = isOfficerOrAnalyst ? 'none' : 'inline-block';
+                }}
+                document.querySelectorAll('.mobile-sos-tab').forEach(el => {{
+                    el.style.display = isOfficerOrAnalyst ? 'none' : 'flex';
+                }});
+                const floatingSosBtn = document.getElementById('floatingSosBtn');
+                if (floatingSosBtn) {{
+                    floatingSosBtn.style.display = isOfficerOrAnalyst ? 'none' : '';
                 }}
                 
                 // Hide Crime Submission Forms from Analysts and Officers

@@ -94,6 +94,8 @@ def filter_rows(kind: str, rows: list[dict], query: dict[str, list[str]]) -> lis
     filtered = rows
     if status:
         filtered = [r for r in filtered if normalize_text(normalize_lifecycle(r.get("status"))) == status]
+    elif query.get("exclude_solved", [""])[0].lower() in ["true", "1", "yes"]:
+        filtered = [r for r in filtered if normalize_text(normalize_lifecycle(r.get("status"))) not in ["solved", "resolved", "closed"]]
     if district:
         filtered = [r for r in filtered if district in normalize_text(r.get("district"))]
     if actor:
@@ -126,7 +128,7 @@ def filter_rows(kind: str, rows: list[dict], query: dict[str, list[str]]) -> lis
     return filtered
 
 
-LIFECYCLE_ORDER = ["New", "Verified", "Assigned", "Resolved", "Closed"]
+LIFECYCLE_ORDER = ["New", "Verified", "Assigned", "Resolved", "Solved", "Closed"]
 
 
 def normalize_lifecycle(status: str | None) -> str:
@@ -655,8 +657,22 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/api/cases":
             payload["status"] = normalize_lifecycle(payload.get("status"))
+            case_id = str(payload.get("id", "")).strip()
             item = append_item("cases", payload, 200)
             append_audit(f"Case created/updated: {item.get('id', 'NA')}", "Police")
+            if case_id and payload["status"] in ["Resolved", "Closed", "Solved"]:
+                db = load_db()
+                for c in db.get("complaints", []):
+                    c_id = str(c.get("id", "")).strip()
+                    if c_id == case_id or c_id.endswith(case_id):
+                        c["status"] = payload["status"]
+                        c["updated_at"] = datetime.now().isoformat(timespec="seconds")
+                for cy in db.get("cyber", []):
+                    cy_id = str(cy.get("id", "")).strip()
+                    if cy_id == case_id or cy_id.endswith(case_id):
+                        cy["status"] = payload["status"]
+                        cy["updated_at"] = datetime.now().isoformat(timespec="seconds")
+                save_db(db)
             self._send_json(201, item)
             return
 
@@ -673,6 +689,17 @@ class Handler(BaseHTTPRequestHandler):
                     case["status"] = status
                     case["updated_by"] = actor
                     case["updated_at"] = datetime.now().isoformat(timespec="seconds")
+                    if status in ["Resolved", "Closed", "Solved"]:
+                        for c in db.get("complaints", []):
+                            c_id = str(c.get("id", "")).strip()
+                            if c_id == case_id or c_id.endswith(case_id):
+                                c["status"] = status
+                                c["updated_at"] = datetime.now().isoformat(timespec="seconds")
+                        for cy in db.get("cyber", []):
+                            cy_id = str(cy.get("id", "")).strip()
+                            if cy_id == case_id or cy_id.endswith(case_id):
+                                cy["status"] = status
+                                cy["updated_at"] = datetime.now().isoformat(timespec="seconds")
                     save_db(db)
                     append_audit(f"Case status updated: {case_id} -> {status}", actor)
                     self._send_json(200, case)
